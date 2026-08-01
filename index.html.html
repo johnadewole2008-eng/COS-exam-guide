@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>COS 102 — Problem Solving Exam Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy-950:#050914;
+  --navy-900:#0a1128;
+  --navy-850:#0e1733;
+  --navy-800:#121c42;
+  --navy-700:#1a2857;
+  --navy-600:#26356e;
+  --navy-500:#334782;
+  --amber-200:#fbe2a8;
+  --amber-300:#f7cd74;
+  --amber-400:#f2b84b;
+  --amber-500:#e2a233;
+  --amber-600:#c9880f;
+  --text-hi:#f2f4fc;
+  --text-mid:#c3cbe8;
+  --text-lo:#8791b8;
+  --green:#4ade80;
+  --green-dim:#1c3a2c;
+  --red:#f87171;
+  --red-dim:#3a1f22;
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'Inter',sans-serif;
+  --radius:10px;
+  --shadow-deep: 0 20px 60px -20px rgba(0,0,0,0.6);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(ellipse 1200px 800px at 15% -10%, rgba(242,184,75,0.07), transparent 60%),
+    radial-gradient(ellipse 1000px 700px at 110% 10%, rgba(51,71,130,0.35), transparent 60%),
+    linear-gradient(180deg, var(--navy-950) 0%, var(--navy-900) 100%);
+  color:var(--text-hi);
+  font-family:var(--sans);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+.app{
+  max-width:920px;
+  margin:0 auto;
+  padding:28px 20px 60px;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+::selection{background:rgba(242,184,75,0.35);}
+
+/* ---------- shared bits ---------- */
+.diamond{
+  width:9px;height:9px;
+  background:var(--amber-400);
+  transform:rotate(45deg);
+  flex-shrink:0;
+  display:inline-block;
+}
+.diamond.outline{background:transparent;border:1.5px solid var(--amber-400);}
+.diamond.sm{width:6px;height:6px;}
+.eyebrow{
+  display:flex;align-items:center;gap:10px;
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:var(--amber-400);
+  font-weight:600;
+  margin-bottom:10px;
+}
+.eyebrow .line{flex:1;height:1px;background:linear-gradient(90deg, var(--navy-600), transparent);}
+
+h1,h2,h3{font-family:var(--sans);font-weight:800;margin:0;color:var(--text-hi);}
+p{color:var(--text-mid);line-height:1.6;}
+
+.btn{
+  font-family:var(--mono);
+  font-size:13px;
+  letter-spacing:0.04em;
+  font-weight:600;
+  padding:14px 26px;
+  border-radius:8px;
+  border:1.5px solid var(--navy-600);
+  background:var(--navy-800);
+  color:var(--text-hi);
+  cursor:pointer;
+  transition:all .15s ease;
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+}
+.btn:hover{border-color:var(--amber-400);transform:translateY(-1px);}
+.btn:active{transform:translateY(0);}
+.btn:focus-visible{outline:2px solid var(--amber-400);outline-offset:2px;}
+.btn-primary{
+  background:linear-gradient(180deg, var(--amber-400), var(--amber-500));
+  color:var(--navy-950);
+  border:1.5px solid var(--amber-500);
+  font-weight:700;
+}
+.btn-primary:hover{filter:brightness(1.08);border-color:var(--amber-300);}
+.btn-primary:disabled{opacity:0.35;cursor:not-allowed;transform:none;filter:none;}
+.btn-ghost{background:transparent;border-color:var(--navy-700);color:var(--text-mid);}
+.btn-ghost:hover{color:var(--text-hi);}
+.btn-danger:hover{border-color:var(--red);}
+
+.card{
+  background:linear-gradient(180deg, var(--navy-850), var(--navy-900));
+  border:1px solid var(--navy-700);
+  border-radius:var(--radius);
+  padding:24px;
+  position:relative;
+}
+.card::before{
+  content:'';
+  position:absolute; top:-1px; left:24px;
+  width:9px;height:9px;
+  background:var(--navy-950);
+  border:1.5px solid var(--amber-400);
+  transform:translateY(-50%) rotate(45deg);
+}
+
+/* ---------- header / footer ---------- */
+.top{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:32px;
+}
+.brand{display:flex;align-items:center;gap:12px;}
+.brand-mark{width:14px;height:14px;background:var(--amber-400);transform:rotate(45deg);}
+.brand-text{font-family:var(--mono);font-size:13px;letter-spacing:.08em;color:var(--text-mid);text-transform:uppercase;}
+.brand-text b{color:var(--text-hi);}
+
+footer{
+  margin-top:auto;
+  padding-top:40px;
+  text-align:center;
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--navy-500);
+}
+footer .fdiv{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;}
+footer .fdiv .line{width:40px;height:1px;background:var(--navy-600);}
+
+.screen{display:none;flex:1;flex-direction:column;}
+.screen.active{display:flex;}
+
+/* ---------- SETUP SCREEN ---------- */
+.hero{margin-bottom:30px;}
+.hero h1{font-size:clamp(28px,5vw,38px);line-height:1.15;letter-spacing:-0.02em;}
+.hero .amber{color:var(--amber-400);}
+.hero p{margin-top:12px;font-size:15px;max-width:520px;}
+.stat-row{display:flex;gap:22px;margin-top:20px;flex-wrap:wrap;}
+.stat{font-family:var(--mono);}
+.stat .num{font-size:22px;font-weight:700;color:var(--amber-300);}
+.stat .lbl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-lo);}
+
+.section-title{
+  font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--text-mid);margin-bottom:14px;display:flex;align-items:center;gap:8px;
+}
+.section-title .idx{color:var(--amber-400);}
+
+.setup-block{margin-bottom:28px;}
+
+.topic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;}
+.topic-chip{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 14px;
+  border:1.5px solid var(--navy-700);
+  border-radius:8px;
+  background:var(--navy-850);
+  cursor:pointer;
+  transition:all .15s ease;
+  user-select:none;
+}
+.topic-chip:hover{border-color:var(--navy-500);}
+.topic-chip.selected{border-color:var(--amber-400);background:rgba(242,184,75,0.07);}
+.topic-chip .diamond{transition:all .15s ease;}
+.topic-chip:not(.selected) .diamond{background:transparent;border:1.5px solid var(--navy-600);}
+.topic-chip .name{font-size:13px;color:var(--text-hi);flex:1;line-height:1.3;}
+.topic-chip .count{font-family:var(--mono);font-size:11px;color:var(--text-lo);}
+.topic-actions{display:flex;gap:14px;margin-top:10px;}
+.link-btn{
+  background:none;border:none;color:var(--amber-400);font-family:var(--mono);
+  font-size:11px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;padding:0;
+}
+.link-btn:hover{color:var(--amber-300);text-decoration:underline;}
+
+.count-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.count-chip{
+  font-family:var(--mono);font-size:14px;font-weight:600;
+  padding:11px 18px;border-radius:8px;border:1.5px solid var(--navy-700);
+  background:var(--navy-850);color:var(--text-mid);cursor:pointer;transition:all .15s ease;
+}
+.count-chip:hover{border-color:var(--navy-500);}
+.count-chip.selected{border-color:var(--amber-400);background:rgba(242,184,75,0.1);color:var(--amber-300);}
+.count-custom{
+  display:flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:13px;color:var(--text-lo);
+}
+.count-custom input{
+  width:70px;padding:10px 10px;border-radius:8px;border:1.5px solid var(--navy-700);
+  background:var(--navy-850);color:var(--text-hi);font-family:var(--mono);font-size:14px;
+}
+.count-custom input:focus{outline:none;border-color:var(--amber-400);}
+.count-hint{font-family:var(--mono);font-size:11px;color:var(--text-lo);margin-top:10px;}
+.count-hint b{color:var(--amber-300);}
+
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:600px){.mode-grid{grid-template-columns:1fr;}}
+.mode-card{
+  border:1.5px solid var(--navy-700);border-radius:var(--radius);
+  padding:20px;cursor:pointer;transition:all .15s ease;background:var(--navy-850);
+  position:relative;overflow:hidden;
+}
+.mode-card:hover{border-color:var(--navy-500);}
+.mode-card.selected{border-color:var(--amber-400);background:linear-gradient(180deg, rgba(242,184,75,0.09), rgba(242,184,75,0.02));}
+.mode-card .mhead{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.mode-card .mdiamond{width:16px;height:16px;border:2px solid var(--navy-500);transform:rotate(45deg);flex-shrink:0;transition:all .15s ease;}
+.mode-card.selected .mdiamond{border-color:var(--amber-400);background:var(--amber-400);}
+.mode-card h3{font-size:15px;}
+.mode-card p{font-size:12.5px;margin:0;}
+
+.timer-block{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:10px;
+  max-width:520px;
+}
+.timer-chip{
+  font-family:var(--mono);font-size:13px;font-weight:600;text-align:center;
+  padding:11px 8px;border-radius:8px;border:1.5px solid var(--navy-700);
+  background:var(--navy-850);color:var(--text-mid);cursor:pointer;transition:all .15s ease;
+}
+.timer-chip:hover{border-color:var(--navy-500);}
+.timer-chip.selected{border-color:var(--amber-400);background:rgba(242,184,75,0.1);color:var(--amber-300);}
+.instant-note{
+  font-family:var(--mono);font-size:11.5px;color:var(--text-lo);
+  display:flex;gap:8px;align-items:flex-start;margin-top:4px;
+}
+
+.start-row{margin-top:34px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+.start-warn{font-family:var(--mono);font-size:11.5px;color:var(--red);display:none;}
+.start-warn.show{display:block;}
+
+/* ---------- QUIZ SCREEN ---------- */
+.quiz-top{
+  display:flex;justify-content:space-between;align-items:center;
+  padding-bottom:16px;border-bottom:1px solid var(--navy-700);margin-bottom:22px;flex-wrap:wrap;gap:12px;
+}
+.q-progress{font-family:var(--mono);font-size:13px;color:var(--text-mid);}
+.q-progress b{color:var(--amber-300);}
+.q-topic-tag{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-lo);margin-top:2px;}
+.timer-display{
+  font-family:var(--mono);font-size:20px;font-weight:700;color:var(--amber-300);
+  display:flex;align-items:center;gap:8px;
+  padding:8px 16px;border:1.5px solid var(--navy-700);border-radius:8px;background:var(--navy-850);
+}
+.timer-display.low{color:var(--red);border-color:var(--red);animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.55;}}
+
+.progress-track{height:3px;background:var(--navy-700);border-radius:2px;margin-bottom:26px;position:relative;overflow:visible;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--amber-500),var(--amber-300));border-radius:2px;transition:width .3s ease;}
+.progress-puck{
+  position:absolute;top:50%;width:10px;height:10px;background:var(--amber-300);
+  transform:translate(-50%,-50%) rotate(45deg);border-radius:2px;transition:left .3s ease;
+  box-shadow:0 0 0 4px var(--navy-900);
+}
+
+.q-card{margin-bottom:22px;}
+.q-text{font-size:18px;line-height:1.5;color:var(--text-hi);font-weight:600;margin-bottom:22px;}
+.opt-list{display:flex;flex-direction:column;gap:10px;}
+.opt{
+  display:flex;align-items:flex-start;gap:14px;
+  padding:15px 16px;border:1.5px solid var(--navy-700);border-radius:8px;
+  background:var(--navy-900);cursor:pointer;transition:all .12s ease;text-align:left;
+  font-family:var(--sans);font-size:14.5px;color:var(--text-mid);width:100%;
+}
+.opt:hover:not(.locked){border-color:var(--navy-500);background:var(--navy-850);}
+.opt.chosen{border-color:var(--amber-400);background:rgba(242,184,75,0.08);color:var(--text-hi);}
+.opt .letter{
+  font-family:var(--mono);font-weight:700;font-size:13px;
+  width:26px;height:26px;border-radius:6px;border:1.5px solid var(--navy-600);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-mid);
+  transition:all .12s ease;
+}
+.opt.chosen .letter{border-color:var(--amber-400);color:var(--amber-300);background:rgba(242,184,75,0.12);}
+.opt.correct{border-color:var(--green);background:rgba(74,222,128,0.09);color:var(--text-hi);}
+.opt.correct .letter{border-color:var(--green);color:var(--green);background:rgba(74,222,128,0.14);}
+.opt.incorrect{border-color:var(--red);background:rgba(248,113,113,0.08);color:var(--text-hi);}
+.opt.incorrect .letter{border-color:var(--red);color:var(--red);background:rgba(248,113,113,0.14);}
+.opt.locked{cursor:default;}
+.opt.dim{opacity:0.55;}
+
+.feedback-banner{
+  margin-top:16px;padding:13px 16px;border-radius:8px;font-family:var(--mono);font-size:13px;
+  display:none;align-items:center;gap:10px;
+}
+.feedback-banner.show{display:flex;}
+.feedback-banner.correct{background:var(--green-dim);color:var(--green);border:1px solid rgba(74,222,128,0.3);}
+.feedback-banner.incorrect{background:var(--red-dim);color:var(--red);border:1px solid rgba(248,113,113,0.3);}
+
+.quiz-nav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:8px;flex-wrap:wrap;}
+.quiz-nav-left,.quiz-nav-right{display:flex;gap:10px;}
+
+.navigator{margin-top:28px;}
+.navigator-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+.nav-dot{
+  width:30px;height:30px;border:1.5px solid var(--navy-600);
+  transform:rotate(45deg);cursor:pointer;position:relative;
+  display:flex;align-items:center;justify-content:center;background:var(--navy-850);
+  transition:all .15s ease;
+}
+.nav-dot span{transform:rotate(-45deg);font-family:var(--mono);font-size:10px;color:var(--text-lo);}
+.nav-dot:hover{border-color:var(--navy-400);}
+.nav-dot.answered{background:var(--navy-700);border-color:var(--navy-500);}
+.nav-dot.answered span{color:var(--text-mid);}
+.nav-dot.current{border-color:var(--amber-400);background:rgba(242,184,75,0.15);}
+.nav-dot.current span{color:var(--amber-300);}
+.nav-dot.flagged::after{
+  content:'';position:absolute;top:-4px;right:-4px;width:8px;height:8px;
+  background:var(--red);border-radius:50%;transform:rotate(-45deg);border:2px solid var(--navy-900);
+}
+.nav-legend{display:flex;gap:18px;margin-top:14px;flex-wrap:wrap;font-family:var(--mono);font-size:10.5px;color:var(--text-lo);}
+.nav-legend .item{display:flex;align-items:center;gap:6px;}
+.nav-legend .sw{width:9px;height:9px;transform:rotate(45deg);flex-shrink:0;}
+
+/* ---------- RESULTS SCREEN ---------- */
+.score-hero{
+  display:flex;align-items:center;gap:30px;padding:32px;margin-bottom:26px;flex-wrap:wrap;
+}
+.score-ring{
+  width:140px;height:140px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;position:relative;
+  background:conic-gradient(var(--amber-400) calc(var(--pct)*1%), var(--navy-700) 0);
+}
+.score-ring::before{
+  content:'';position:absolute;inset:10px;border-radius:50%;background:var(--navy-900);
+}
+.score-ring .val{position:relative;font-family:var(--mono);font-weight:700;font-size:28px;color:var(--text-hi);}
+.score-ring .val small{display:block;font-size:11px;font-weight:500;color:var(--text-lo);letter-spacing:.06em;}
+.score-meta h2{font-size:22px;margin-bottom:8px;}
+.score-meta .badge{
+  display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  padding:5px 12px;border-radius:20px;margin-bottom:10px;
+}
+.badge.excellent{background:var(--green-dim);color:var(--green);}
+.badge.good{background:rgba(242,184,75,0.15);color:var(--amber-300);}
+.badge.fair{background:rgba(242,184,75,0.1);color:var(--amber-500);}
+.badge.needs{background:var(--red-dim);color:var(--red);}
+.score-stats{display:flex;gap:20px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;color:var(--text-lo);}
+.score-stats b{color:var(--text-hi);font-size:14px;}
+
+.topic-breakdown{margin-bottom:26px;}
+.tb-row{display:flex;align-items:center;gap:14px;margin-bottom:12px;}
+.tb-name{font-size:12.5px;color:var(--text-mid);width:230px;flex-shrink:0;font-family:var(--mono);}
+.tb-bar-track{flex:1;height:8px;background:var(--navy-700);border-radius:4px;overflow:hidden;}
+.tb-bar-fill{height:100%;background:linear-gradient(90deg,var(--amber-500),var(--amber-300));border-radius:4px;}
+.tb-frac{font-family:var(--mono);font-size:11.5px;color:var(--text-lo);width:46px;text-align:right;flex-shrink:0;}
+
+.review-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.review-tab{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;
+  padding:8px 14px;border-radius:20px;border:1.5px solid var(--navy-700);background:var(--navy-850);
+  color:var(--text-lo);cursor:pointer;transition:all .15s ease;
+}
+.review-tab:hover{border-color:var(--navy-500);}
+.review-tab.active{border-color:var(--amber-400);color:var(--amber-300);background:rgba(242,184,75,0.08);}
+
+.review-item{margin-bottom:14px;padding:18px;}
+.review-item .rh{display:flex;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.review-item .rq{font-size:14.5px;font-weight:600;color:var(--text-hi);flex:1;}
+.review-item .rtag{font-family:var(--mono);font-size:10px;color:var(--text-lo);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;}
+.review-status{font-family:var(--mono);font-size:11px;flex-shrink:0;padding:3px 9px;border-radius:12px;height:fit-content;}
+.review-status.correct{background:var(--green-dim);color:var(--green);}
+.review-status.incorrect{background:var(--red-dim);color:var(--red);}
+.review-status.skipped{background:var(--navy-700);color:var(--text-lo);}
+.review-opts{display:flex;flex-direction:column;gap:6px;font-size:13px;}
+.review-opt{padding:8px 12px;border-radius:6px;display:flex;gap:10px;color:var(--text-mid);}
+.review-opt.your-wrong{background:var(--red-dim);color:var(--red);}
+.review-opt.correct-ans{background:var(--green-dim);color:var(--green);}
+.review-opt .rletter{font-family:var(--mono);font-weight:700;}
+
+.results-actions{display:flex;gap:14px;margin-top:28px;flex-wrap:wrap;}
+
+/* ---------- modal ---------- */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(5,9,20,0.75);backdrop-filter:blur(3px);
+  display:none;align-items:center;justify-content:center;z-index:100;padding:20px;
+}
+.modal-overlay.show{display:flex;}
+.modal{max-width:420px;width:100%;}
+.modal h3{margin-bottom:12px;font-size:17px;}
+.modal p{font-size:13.5px;margin-bottom:20px;}
+.modal-actions{display:flex;gap:12px;justify-content:flex-end;}
+
+@media(max-width:640px){
+  .score-hero{flex-direction:column;text-align:center;}
+  .tb-name{width:150px;font-size:11px;}
+  .quiz-top{flex-direction:row;}
+  .q-text{font-size:16.5px;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="top">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-text"><b>COS 102</b> · Problem Solving</div>
+    </div>
+    <div class="brand-text" id="headerRight"></div>
+  </div>
+
+  <!-- ============ SETUP SCREEN ============ -->
+  <section class="screen active" id="screen-setup">
+    <div class="hero">
+      <div class="eyebrow"><span class="diamond"></span>Exam Simulator<span class="line"></span></div>
+      <h1>Problem Solving,<br><span class="amber">stress-tested.</span></h1>
+      <p>Every attempt pulls a fresh, randomly shuffled set from the full question bank — no fixed order, no repeats within a sitting. Choose your scope, pick a mode, and begin.</p>
+      <div class="stat-row">
+        <div class="stat"><div class="num" id="statTotal">469</div><div class="lbl">Questions</div></div>
+        <div class="stat"><div class="num">11</div><div class="lbl">Topics</div></div>
+        <div class="stat"><div class="num">2</div><div class="lbl">Modes</div></div>
+      </div>
+    </div>
+
+    <div class="setup-block">
+      <div class="section-title"><span class="idx">01</span> Topics</div>
+      <div class="card">
+        <div class="topic-grid" id="topicGrid"></div>
+        <div class="topic-actions">
+          <button class="link-btn" id="selectAllTopics">Select all</button>
+          <button class="link-btn" id="selectNoneTopics">Clear all</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="setup-block">
+      <div class="section-title"><span class="idx">02</span> Number of questions</div>
+      <div class="card">
+        <div class="count-row" id="countRow"></div>
+        <div class="count-custom">
+          Custom:
+          <input type="number" id="customCount" min="1" value="20">
+          <span id="countMaxLabel"></span>
+        </div>
+        <div class="count-hint">Up to <b id="poolMax">469</b> available in your current topic selection.</div>
+      </div>
+    </div>
+
+    <div class="setup-block">
+      <div class="section-title"><span class="idx">03</span> Mode</div>
+      <div class="card">
+        <div class="mode-grid">
+          <div class="mode-card selected" id="mode-exam" data-mode="exam">
+            <div class="mhead"><div class="mdiamond"></div><h3>Exam Mode</h3></div>
+            <p>Timed and sequential. Answers are locked in as you go — full results and review only appear at the end.</p>
+          </div>
+          <div class="mode-card" id="mode-instant" data-mode="instant">
+            <div class="mhead"><div class="mdiamond"></div><h3>Instant Answer Mode</h3></div>
+            <p>See whether you're right immediately after each question. Great for study drills — no countdown pressure.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="setup-block" id="timerBlockWrap">
+      <div class="section-title"><span class="idx">04</span> Time limit</div>
+      <div class="card">
+        <div class="timer-block" id="timerRow"></div>
+        <div class="instant-note" id="instantNote" style="display:none;">
+          <span class="diamond sm outline"></span>
+          Instant Answer Mode runs untimed — a stopwatch simply tracks how long you take.
+        </div>
+      </div>
+    </div>
+
+    <div class="start-row">
+      <button class="btn btn-primary" id="startBtn">Begin session →</button>
+      <div class="start-warn" id="startWarn">Select at least one topic to continue.</div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ SCREEN ============ -->
+  <section class="screen" id="screen-quiz">
+    <div class="quiz-top">
+      <div>
+        <div class="q-progress">Question <b id="qNum">1</b> / <span id="qTotal">20</span></div>
+        <div class="q-topic-tag" id="qTopicTag">—</div>
+      </div>
+      <div class="timer-display" id="timerDisplay">--:--</div>
+    </div>
+
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      <div class="progress-puck" id="progressPuck" style="left:0%"></div>
+    </div>
+
+    <div class="card q-card">
+      <div class="q-text" id="qText">Loading…</div>
+      <div class="opt-list" id="optList"></div>
+      <div class="feedback-banner" id="feedbackBanner"></div>
+    </div>
+
+    <div class="quiz-nav">
+      <div class="quiz-nav-left">
+        <button class="btn btn-ghost" id="prevBtn">← Previous</button>
+        <button class="btn btn-ghost" id="flagBtn">⚑ Flag</button>
+      </div>
+      <div class="quiz-nav-right">
+        <button class="btn btn-primary" id="nextBtn">Next →</button>
+        <button class="btn btn-primary" id="submitBtn" style="display:none;">Submit exam</button>
+      </div>
+    </div>
+
+    <div class="navigator" id="navigatorWrap">
+      <div class="section-title"><span class="idx">◆</span> Question map</div>
+      <div class="navigator-grid" id="navigatorGrid"></div>
+      <div class="nav-legend">
+        <div class="item"><span class="sw" style="background:var(--navy-850);border:1.5px solid var(--navy-600);"></span>Unanswered</div>
+        <div class="item"><span class="sw" style="background:var(--navy-700);border:1.5px solid var(--navy-500);"></span>Answered</div>
+        <div class="item"><span class="sw" style="background:rgba(242,184,75,0.15);border:1.5px solid var(--amber-400);"></span>Current</div>
+        <div class="item"><span class="sw" style="background:var(--red);"></span>Flagged</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RESULTS SCREEN ============ -->
+  <section class="screen" id="screen-results">
+    <div class="eyebrow"><span class="diamond"></span>Session complete<span class="line"></span></div>
+
+    <div class="card score-hero">
+      <div class="score-ring" id="scoreRing" style="--pct:0;">
+        <div class="val" id="scoreRingVal">0<small>PERCENT</small></div>
+      </div>
+      <div class="score-meta">
+        <div class="badge" id="scoreBadge">—</div>
+        <h2 id="scoreHeadline">You scored 0 / 0</h2>
+        <div class="score-stats">
+          <div><b id="statCorrect">0</b> correct</div>
+          <div><b id="statIncorrect">0</b> incorrect</div>
+          <div><b id="statSkipped">0</b> skipped</div>
+          <div><b id="statTime">0:00</b> elapsed</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="setup-block topic-breakdown">
+      <div class="section-title"><span class="idx">◆</span> Breakdown by topic</div>
+      <div class="card" id="topicBreakdownWrap"></div>
+    </div>
+
+    <div class="setup-block">
+      <div class="section-title"><span class="idx">◆</span> Review</div>
+      <div class="review-tabs" id="reviewTabs">
+        <button class="review-tab active" data-filter="all">All</button>
+        <button class="review-tab" data-filter="incorrect">Incorrect</button>
+        <button class="review-tab" data-filter="correct">Correct</button>
+        <button class="review-tab" data-filter="flagged">Flagged</button>
+      </div>
+      <div id="reviewList"></div>
+    </div>
+
+    <div class="results-actions">
+      <button class="btn btn-primary" id="restartBtn">New session →</button>
+      <button class="btn btn-ghost" id="reviewTopBtn">Back to top</button>
+    </div>
+  </section>
+
+  <footer>
+    <div class="fdiv"><span class="line"></span><span class="diamond sm"></span><span class="line"></span></div>
+    Sir John the Third
+  </footer>
+</div>
+
+<!-- ============ MODAL ============ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="card modal">
+    <h3 id="modalTitle">Submit exam?</h3>
+    <p id="modalBody">You still have unanswered questions. Once submitted you can't change your answers.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="modalCancel">Keep going</button>
+      <button class="btn btn-primary" id="modalConfirm">Submit</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   DATA
+========================================================= */
+const QUESTION_BANK = [{"id":1,"q":"What is data in the context of computing?","opts":{"A":"Processed information that has meaning","B":"Raw facts, figures, or symbols that have no meaning by themselves","C":"A sequence of well-defined steps","D":"An algorithm expressed in a language a computer can execute"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":2,"q":"According to the lecture, what is information?","opts":{"A":"Raw facts without meaning","B":"Data that has been processed, organized, or structured to make it meaningful","C":"A finite sequence of unambiguous steps","D":"The physical components of a computer"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":3,"q":"How is: an algorithm defined in the lecture?","opts":{"A":"A programming language syntax rule","B":"A finite sequence of well-defined, unambiguous steps that solves a specific problem","C":"Any set of instructions written in English","D":"The hardware components of a computer system"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":4,"q":"What is a program according to the lecture?","opts":{"A":"The physical components of a computer","B":"A mathematical equation","C":"An algorithm expressed in a language that a computer can execute","D":"A user interface design"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":5,"q":"According to the lecture, what lies at the heart of computing?","opts":{"A":"Hardware design","B":"Problem solving","C":"Network configuration","D":"Database management"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":6,"q":"In the academic sense, a problem exists when:","opts":{"A":"There is no possible solution","B":"There is a clear initial state and a desired goal state, but the path is not immediately obvious","C":"The task is impossible to complete","D":"Only one solution exists"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":7,"q":"Which of the following is NOT a component of a problem according to the lecture?","opts":{"A":"Initial state","B":"Goal state","C":"Algorithm","D":"Obstacle/Challenge"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":8,"q":"The initial state of a problem refers to:","opts":{"A":"Where you want to be","B":"The final solution","C":"Where you are now, what you know, or what you have","D":"The constraints of the problem"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":9,"q":"The obstacle/challenge in a problem includes:","opts":{"A":"Only the final answer","B":"Constraints and available actions that can change the state","C":"Only the starting point","D":"The desired outcome only"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":10,"q":"Problem identification involves all the following EXCEPT:","opts":{"A":"Observation of symptoms","B":"Needs analysis","C":"Immediate implementation","D":"Opportunities recognition"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":11,"q":"Which of the following describes \"Observation of symptoms\" in problem identification?","opts":{"A":"When a stakeholder expresses a desire for a new capability","B":"When something is not working as expected","C":"When recognizing a task could be done better with a computational solution","D":"When documenting the final solution"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":12,"q":"\"Needs analysis\" in problem identification occurs when:","opts":{"A":"A program crashes unexpectedly","B":"A stakeholder expresses a desire for a new capability","C":"A task is already completed successfully","D":"The system works perfectly"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":13,"q":"A well-formed problem statement typically includes all EXCEPT:","opts":{"A":"The current state","B":"The goal state","C":"The programmer's personal opinion","D":"The context and constraints"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":14,"q":"In computing, the process of understanding what the user really needs is called:","opts":{"A":"Requirement elicitation","B":"Program execution","C":"System implementation","D":"Code debugging"},"answer":"A","topic":"Foundations of Problem Solving in Computing"},{"id":15,"q":"Example of a strong problem statement includes:","opts":{"A":"\"Our university registration system is bad\"","B":"'The system needs improvement\"","C":"\"During peak registration period, over 2,000 students queue for 4 hours because the online portal handles only 200 concurrent sessions\"","D":"\"The software doesn't work properly\""},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":16,"q":"Routine problems (well-defined) are characterized by:","opts":{"A":"Ambiguous goal state","B":"No known systematic procedure","C":"All necessary information is given and a known algorithm guarantees a correct solution","D":"Multiple conflicting criteria"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":17,"q":"Non-routine problems (ill-defined) are characterized by:","opts":{"A":"All necessary information is given","B":"A known systematic algorithm exists","C":"Ambiguity; no single \"correct\" answer; require creativity and heuristics","D":"They are always repetitive"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":18,"q":"The primary challenge in solving routine problems is:","opts":{"A":"Inventing a new algorithm","B":"Choosing the most efficient algorithm from existing ones","C":"Defining the problem","D":"Managing stakeholder expectations"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":19,"q":"An example of a non-routine problem is:","opts":{"A":"Computing the average of a list of numbers","B":"Converting temperatures from Celsius to Fahrenheit","C":"Designing a user-friendly interface for a mobile banking app","D":"Finding the shortest path using Dijkstra's algorithm"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":20,"q":"According to the lecture, a computer can only execute:","opts":{"A":"Heuristics","B":"Creative ideas","C":"Algorithms","D":"Intuitive guesses"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":21,"q":"Computer science is frequently misunderstood as merely:","opts":{"A":"Computational thinking","B":"Programming or learning languages","C":"Problem analysis","D":"System design"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":22,"q":"The heart of computer science is:","opts":{"A":"Hardware engineering","B":"Network administration","C":"Computational thinking","D":"Database management"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":23,"q":"Problem solving in computer science involves all EXCEPT:","opts":{"A":"Formulating problems in a way that enables use of a computer","B":"Logically organising and analysing data","C":"Ignoring automation possibilities","D":"Representing data through abstractions"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":24,"q":"The first step in Polya's problem-solving process is:","opts":{"A":"Devise a plan","B":"Carry out the plan","C":"Understand the prablem","D":"Look back and evaluate"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":25,"q":"The second step in Polya's problem-solving process is:","opts":{"A":"Understand the problem","B":"Devise aplan","C":"Carry out the plan","D":"Look back and evaluate"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":26,"q":"The third step in Pdlya's problem-solving process is:","opts":{"A":"Understand the prablem","B":"Devise aplan","C":"Carry out the plan","D":"Look back and evaluate"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":27,"q":"The fourth step in Polya's problem-solving process is:","opts":{"A":"Understand the problem","B":"Devise aplan","C":"Carry out the plan","D":"Look back and evaluate"},"answer":"D","topic":"Foundations of Problem Solving in Computing"},{"id":28,"q":"During the \"Understand the Problem\" step, one should:","opts":{"A":"Immediately start coding","B":"Read carefully, identify given data, draw a diagram","C":"Ignore edge cases","D":"Skip to the solution"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":29,"q":"During the \"Devise a Plan\" step, one should:","opts":{"A":"Write the final code immediately","B":"Think about similar problems solved in the past and select an appropriate technique","C":"Stop if no immediate solution is found","D":"Only use algorithms, never heuristics"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":30,"q":"The \"Carry Out the Plan\" step involves:","opts":{"A":"Only thinking about the solution","B":"Executing the chosen strategy with care and patience","C":"Ignoring errors","D":"Skipping testing"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":31,"q":"The \"Look Back\" step involves:","opts":{"A":"Celebrating completion without review","B":"Examining the solution, testing, debugging, and optimizing","C":"Starting a new project","D":"Deleting all work"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":32,"q":"In computing, the \"Look Back\" step corresponds to:","opts":{"A":"Requirements gathering","B":"Problem definition","C":"Testing, debugging, and optimization","D":"Project planning"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":33,"q":"A problem is said to be solvable (or decidable) if:","opts":{"A":"There exists an algorithm that will produce correct output for all valid inputs and terminate","B":"It can be solved with current technology","C":"It has been solved before","D":"There is a heuristic that works most of the time"},"answer":"A","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":34,"q":"An unsolvable problem is one that:","opts":{"A":"Cannot be solved with current technology","B":"No algorithm can possibly exist to solve it","C":"Is too difficult for humans","D":"Requires too much memory"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":35,"q":"The Entscheidungsproblem (\"decision problem') asked whether:","opts":{"A":"Computers could think","B":"There could exist a mechanical procedure to determine truth or falsehood of any mathematical statement","C":"Algorithms could be optimized","D":"Problems could be classified"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":36,"q":"Who answered the Entscheidungsproblem in 1936?","opts":{"A":"George Podlya","B":"Donald Knuth","C":"Alan Turing","D":"David Hilbert"},"answer":"C","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":37,"q":"A Turing machine consists of all the following EXCEPT:","opts":{"A":"An infinite tape divided into cells","B":"A head that can read and write symbols","C":"A finite set of states and a transition table","D":"A graphical user interface"},"answer":"D","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":38,"q":"The Church-Turing thesis states that:","opts":{"A":"Computers are faster than humans","B":"Anything that can be computed, can be computed by a Turing machine","C":"All problems are solvable","D":"Algorithms are unnecessary"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":39,"q":"The Halting Problem asks:","opts":{"A":"How to stop a program gracefully","B":"Given a program and its input, determine whether it will eventually stop or run forever","C":"How to optimize program termination","D":"When to use loops in programming"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":40,"q":"Turing proved that the Halting Problem is:","opts":{"A":"Always solvable","B":"Solvable with sufficient memory","C":"Undecidable- no general algorithm can solve it","D":"Only unsolvable for certain programming languages"},"answer":"C","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":41,"q":"A problem is tractable if:","opts":{"A":"It can be solved by an algorithm whose running time grows polynomially with input size","B":"It requires exponential time","C":"It is impossible to solve","D":"It requires infinite time"},"answer":"A","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":42,"q":"A problem is intractable if:","opts":{"A":"It can be solved in polynomial time","B":"The best known algorithm requires exponential or worse time growth","C":"It is impossible to verify solutions","D":"It requires no resources"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":43,"q":"Binary search has time complexity:","opts":{"A":"O(n)","B":"O(n?)","C":"O(log n)","D":"O(n)"},"answer":"C","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":44,"q":"Merge sort has time complexity:","opts":{"A":"O(n)","B":"O(n?)","C":"O(n log n)","D":"O(n)"},"answer":"C","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":45,"q":"Which of the following is an example of an intractable problem?","opts":{"A":"Searching a sorted list","B":"Sorting a list","C":"Traveling Salesman Problem (TSP) with large input","D":"Finding the maximum of three numbers"},"answer":"C","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":46,"q":"The class NP (Non-deterministic Polynomial time) problems have the property that:","opts":{"A":"They cannot be solved at all","B":"Their solutions can be verified in polynomial time, even though finding them seems to require exponential time","C":"They are always tractable","D":"They require constant time"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":47,"q":"The P vs. NP question asks whether:","opts":{"A":"Polynomial time is faster than exponential time","B":"Every problem whose solution can be verified quickly can also be solved quickly","C":"NP problems are unsolvable","D":"All problems are tractable"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":48,"q":"Most experts believe that:","opts":{"A":"P=NP","B":"P # NP","C":"P and NP are unrelated","D":"Pisa subset of NP-hard"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":49,"q":"An algorithm is defined as:","opts":{"A":"An educated guess","B":"A finite sequence of well-defined instructions for solving a class of problems","C":"A random procedure","D":"A programming language"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":50,"q":"Euclid's algorithm is used to find:","opts":{"A":"The largest number in a list","B":"The Greatest Common Divisor (GCD)","C":"The square root of a number","D":"The average of numbers"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":51,"q":"Binary search requires the input array to be:","opts":{"A":"Unsorted","B":"Sorted","C":"Reversed","D":"Random"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":52,"q":"A heuristic is:","opts":{"A":"An exact algorithm that guarantees optimal solution","B":"An experience-based technique that finds satisfactory solutions when exact algorithms don't exist or are intractable","C":"A programming language","D":"A hardware component"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":53,"q":"Heuristics are used when:","opts":{"A":"An exact algorithm exists and is fast","B":"The problem is well-defined and simple","C":"An exact algorithm is too slow or memory-hungry, or doesn't exist","D":"The problem has only one solution"},"answer":"C","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":54,"q":"Greedy algorithms are considered heuristics when:","opts":{"A":"They always find the optimal solution","B":"They cannot guarantee finding the true optimum for all cases","C":"They are used for sorting","D":"They are never used in computing"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":55,"q":"An advantage of heuristics is:","opts":{"A":"They guarantee optimal solutions","B":"They are fast and computationally cheap","C":"They always find the global optimum","D":"They require no evaluation"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":56,"q":"A disadvantage of heuristics is:","opts":{"A":"They are too slow","B":"No guarantee of optimality","C":"They require too much memory","D":"They can only handle small inputs"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":57,"q":"Which property requires that an algorithm must always terminate after a finite number of steps?","opts":{"A":"Definiteness","B":"Input","C":"Finiteness","D":"Effectiveness"},"answer":"C","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":58,"q":"Definiteness in an algorithm means:","opts":{"A":"The algorithm must have multiple outputs","B":"Each step must be precisely and unambiguously defined","C":"The algorithm must terminate","D":"The algorithm must be efficient"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":59,"q":"The Input property of an algorithm states that:","opts":{"A":"There must be exactly one input","B":"An algorithm has zero or more inputs","C":"Inputs must be numbers only","D":"Inputs are optional and can be ignored"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":60,"q":"The Output property of an algorithm states that:","opts":{"A":"Outputs are optional","B":"An algorithm has one or more outputs","C":"Outputs must be displayed on screen","D":"Gutputs must be numbers"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":61,"q":"Effectiveness in an algorithm means:","opts":{"A":"The algorithm must be written in a programming language","B":"All operations must be sufficiently basic to be carried out in principle","C":"The algorithm must be fast","D":"The algorithm must use minimal memory"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":62,"q":"An algorithm containing the step \"if the Goldbach conjecture is true, then do X\" would violate which property?","opts":{"A":"Finiteness","B":"Definiteness","C":"Effectiveness","D":"Input"},"answer":"C","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":63,"q":"Abstraction is the process of:","opts":{"A":"Adding more details to a problem","B":"Filtering out unnecessary details to focus on essential features","C":"Making problems more complex","D":"Ignoring all constraints"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":64,"q":"The term \"abstraction\" comes from Latin meaning:","opts":{"A":"To build","B":"To draw away","C":"To compute","D":"To salve"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":65,"q":"Abstraction is one of the four cornerstones of computational thinking, alongside:","opts":{"A":"Compilation, execution, linking, and loading","B":"Decomposition, pattern recognition, and algorithm design","C":"Memory, processing, input, and output","D":"Software, hardware, networks, and data"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":66,"q":"When abstracting a problem, the first step is:","opts":{"A":"Identify the core goal","B":"Suppress irrelevant details","C":"Build a representation","D":"Determine critical entities"},"answer":"A","topic":"Solution Techniques (Part 1)"},{"id":67,"q":"The London Underground map designed by Harry Beck is an example of:","opts":{"A":"Over-abstraction","B":"A masterpiece of abstraction","C":"Under-abstraction","D":"A failed abstraction"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":68,"q":"In object-oriented programming, a class that represents a student for a university system would abstract:","opts":{"A":"The student's favourite colour and shoe size","B":"Only the attributes that matter: studentID, name, dateOfBirth, enrolledCourses","C":"Everything about the student's life","D":"Only the student's grades"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":69,"q":"A stack is an abstraction of:","opts":{"A":"A list of numbers","B":"A physical pile of plates","C":"A tree structure","D":"A database"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":70,"q":"Overabstraction occurs when:","opts":{"A":"You keep all details","B":"You remove details that are actually essential","C":"You fail to remove enough clutter","D":"You use the wrong abstraction"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":71,"q":"Under-abstraction occurs when:","opts":{"A":"You remove essential details","B":"You fail to remove enough clutter, leaving the problem too complex","C":"You use the wrong abstraction","D":"You ignore the problem completely"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":72,"q":"Analogy is the technique of:","opts":{"A":"Removing details from a problem","B":"Solving a new problem by recognising its similarity to a previously solved problem","C":"Generating random ideas","D":"Testing hypotheses"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":73,"q":"The process of analogical reasoning includes all EXCEPT:","opts":{"A":"Representation","B":"Retrieval","C":"Compilation","D":"Mapping"},"answer":"C","topic":"Solution Techniques (Part 1)"},{"id":74,"q":"The Wright brothers drew an analogy to which activity for controlled flight?","opts":{"A":"Driving a car","B":"Riding a bicycle","C":"Walking","D":"Swimming"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":75,"q":"Floyd's cycle detection algorithm is also known as:","opts":{"A":"The hare and tortoise algorithm","B":"The Eagle algorithm","C":"The Cheetah algorithm","D":"The Faleon algorithm"},"answer":"A","topic":"Solution Techniques (Part 1)"},{"id":76,"q":"Ant colony optimization is inspired by how ants:","opts":{"A":"Build their nests","B":"Find the shortest path between nest and food source","C":"Communicate with each other","D":"Protect their territory"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":77,"q":"A false analogy is when:","opts":{"A":"The analogy is structurally sound","B":"Superficial similarities seduce you into applying a solution that does not hold","C":"The analogy leads to a correct solution","D":"The analogy is confirmed by evidence"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":78,"q":"Brainstorming was popularised by:","opts":{"A":"Alan Turing","B":"Alex Osborn","C":"George Polya","D":"Donald Knuth"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":79,"q":"The fundamental principles of brainstorming include all EXCEPT:","opts":{"A":"Aim for quantity","B":"Withhold criticism","C":"Evaluate ideas immediately","D":"Welcome wild and unusual ideas"},"answer":"C","topic":"Solution Techniques (Part 1)"},{"id":80,"q":"In brainstorming, the goal is:","opts":{"A":"Quality over quantity","B":"Quantity and variety, not immediate quality","C":"Only realistic ideas","D":"Only one best idea"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":81,"q":"Divergent thinking in brainstorming refers to:","opts":{"A":"Evaluating ideas","B":"Generating ideas","C":"Implementing ideas","D":"Discarding ideas"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":82,"q":"Convergent thinking refers to:","opts":{"A":"Generating ideas","B":"Evaluating and selecting ideas","C":"Ignoring all ideas","D":"Random idea generation"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":83,"q":"Social loafing in group brainstorming refers to:","opts":{"A":"When ideas flow freely","B":"When some individuals coast and contribute less","C":"When evaluation apprehension occurs","D":"When production blocking happens"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":84,"q":"Trial and error is described as:","opts":{"A":"The most sophisticated problem-solving method","B":"The most fundamental empirical problem-solving method","C":"The least used method","D":"A method that always guarantees success"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":85,"q":"Random trial and error involves:","opts":{"A":"Structured variation of attempts","B":"Attempts made haphazardly with no memory of past failures","C":"Using feedback intelligently","D":"Systematic exploration"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":86,"q":"Systematic trial and error involves:","opts":{"A":"Random attempts with no structure","B":"Attempts varied in a structured way where each failure eliminates a class of possibilities","C":"Using no feedback","D":"Only one attempt"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":87,"q":"An advantage of trial and error is:","opts":{"A":"It always finds the optimal solution","B":"It is universally applicable and requires no prior theory","C":"It is extremely fast","D":"It guarantees the best result"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":88,"q":"A disadvantage of trial and error is:","opts":{"A":"It is too complex","B":"It can be extremely slow and may not scale","C":"It requires extensive theary","D":"It cannot discover unexpected solutions"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":89,"q":"Brute-force password cracking is an example of:","opts":{"A":"Systematic trial and error","B":"Informed trial and error","C":"Random trial and error","D":"Heuristic search"},"answer":"A","topic":"Solution Techniques (Part 1)"},{"id":90,"q":"Genetic algorithms are a sophisticated computational instantiation of:","opts":{"A":"Analogy","B":"Brainstorming","C":"Trial and error","D":"Abstraction"},"answer":"C","topic":"Solution Techniques (Part 1)"},{"id":91,"q":"Hypothesis testing involves:","opts":{"A":"Randomly trying solutions","B":"Formulating a testable conjecture and designing experiments to test it","C":"Ignoring evidence","D":"Using only intuition"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":92,"q":"A good hypothesis must be:","opts":{"A":"Broad and vague","B":"Specific and falsifiable","C":"Impossible to test","D":"Based on opinion"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":93,"q":"Confirmation bias refers to:","opts":{"A":"Seeking evidence that confirms our hypothesis while ignoring disconfirming evidence","B":"Conducting objective experiments","C":"Validating results with peers","D":"Using statistical analysis"},"answer":"A","topic":"Solution Techniques (Part 1)"},{"id":94,"q":"A confounding variable in hypothesis testing occurs when:","opts":{"A":"You change one variable at atime","B":"You change two things at once and don't know which caused the effect","C":"The hypothesis is supported","D":"The experiment is repeated"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":95,"q":"Reduction (transform-and-conquer) is the technique of:","opts":{"A":"Making problems more complex","B":"Solving a problem by transforming it into another problem for which a solution is already known","C":"Ignoring known solutions","D":"Creating new problems"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":96,"q":"Reduction is more formal than analogy because:","opts":{"A":"ltis less precise","B":"Itaims for an exact, often mathematical mapping that guarantees solution validity","C":"It is used only for creative problems","D":"It requires no mapping"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":97,"q":"The concept of NP-completeness is built on the idea of:","opts":{"A":"Abstraction","B":"Analogy","C":"Reduction","D":"Brainstorming"},"answer":"C","topic":"Solution Techniques (Part 1)"},{"id":98,"q":"Boolean satisfiability (SAT) can be used as:","opts":{"A":"Only a theoretical concept","B":"A universal reduction target for many hard problems","C":"A simple sorting algorithm","D":"A data structure"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":99,"q":"When using a built-in sort() function, you are practising:","opts":{"A":"Abstraction","B":"Reduction","C":"Analogy","D":"Trial and error"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":100,"q":"Lateral thinking was coined by:","opts":{"A":"George Polya","B":"Edward de Bono","C":"Alan Turing","D":"Alex Osborn"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":101,"q":"Lateral thinking aims to:","opts":{"A":"Follow logical steps along established paths","B":"Break free from conventional, linear thinking","C":"Use only algorithmic approaches","D":"Avoid creativity"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":102,"q":"The technique of \"challenging assumptions\" in lateral thinking involves:","opts":{"A":"Accepting all assumptions","B":"Identifying unspoken assumptions and deliberately questioning them","C":"Gnly focusing on obvious constraints","D":"Ignoring all constraints"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":103,"q":"The hotel elevator problem solution (placing mirrors) is an example of:","opts":{"A":"Reduction","B":"Lateral thinking","C":"Algorithm design","D":"Formal proof"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":104,"q":"The nine-dot puzzle demonstrates:","opts":{"A":"Linear thinking","B":"Thinking outside the box (lateral thinking)","C":"Algorithmic thinking","D":"Reduction"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":105,"q":"CAPTCHA reCAPT CHA innavation is an example of:","opts":{"A":"Trial and error","B":"Lateral thinking","C":"Reduction","D":"Proof"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":106,"q":"Means-end analysis was central to:","opts":{"A":"The first web browser","B":"The General Problem Solver (GPS) Al program","C":"The Turing machine","D":"The first compiler"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":107,"q":"Means-end analysis involves:","opts":{"A":"Random trial and error","B":"Reducing the gap between current state and goal state by identifying differences and applying operators","C":"Only linear thinking","D":"Avoiding subgoals"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":108,"q":"The Tower of Hanoi puzzle is best solved using:","opts":{"A":"Trial and error","B":"Means-end analysis","C":"Brainstorming","D":"Lateral thinking"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":109,"q":"In means-end analysis, when an operator cannot be applied directly, you create:","opts":{"A":"A random solution","B":"A new subgoal","C":"An algorithm","D":"A heuristic"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":110,"q":"The recursive generation of subgoals in means-end analysis is useful for:","opts":{"A":"Simple problems only","B":"Complex problem solving and Al planning","C":"Creative brainstorming","D":"Avoiding logic"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":111,"q":"The method of focal objects was developed by:","opts":{"A":"Edward de Bono","B":"Charles S. Whiting","C":"George Polya","D":"Allen Newell"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":112,"q":"The method of focal objects forces a connection between:","opts":{"A":"Two known solutions","B":"A central problem and randomly chosen, unrelated objects","C":"Two algorithms","D":"A prablem and its exact solution"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":113,"q":"When using the method of focal objects, after selecting random objects you:","opts":{"A":"Discard them immediately","B":"List attributes or associations for each random object","C":"Only use the first random object","D":"Ignore the random objects"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":114,"q":"Morphological analysis was developed by:","opts":{"A":"Edward de Bono","B":"Fritz Zwicky","C":"George Palya","D":"Alan Turing"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":115,"q":"The name \"morphological\" comes from Greek meaning:","opts":{"A":"To salve","B":"Form or shape","C":"To compute","D":"To think"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":116,"q":"A morphological box (Zwicky box) is used to:","opts":{"A":"Store data","B":"Systematically explore combinations of solution parameters","C":"Test hypotheses","D":"Prove algorithms"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":117,"q":"In morphological analysis, key dimensions of the problem are:","opts":{"A":"Only the constraints","B":"The independent axes along which the solution can vary","C":"Only the outputs","D":"Random variables"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":118,"q":"The number of theoretical combinations in morphological analysis is:","opts":{"A":"Always small","B":"The product of the number of values per parameter","C":"Always one","D":"The sum of values"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":119,"q":"Research in problem solving is defined as:","opts":{"A":"Random idea generation","B":"Systematic investigation and study of materials, sources, and data to establish facts and reach conclusions","C":"Trial and error","D":"Personal intuition"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":120,"q":"The first step in the research process is:","opts":{"A":"Collect information","B":"Define the research question or information need","C":"Apply findings","D":"Evaluate results"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":121,"q":"In computing, research helps to:","opts":{"A":"Ignore existing knowledge","B":"Find out what already exists before building something new","C":"Reinvent known solutions","D":"Avoid learning"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":122,"q":"Academic sources in computing include:","opts":{"A":"Only Wikipedia","B":"Google Scholar, IEEE Xplore, ACM Digital Library","C":"Only social media","D":"Only textbooks from any field"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":123,"q":"Root Cause Analysis (RCA) is used to:","opts":{"A":"Ignore problems","B":"Identify the underlying cause of a problem, not just symptoms","C":"Quickfix issues","D":"Blame individuals"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":124,"q":"The \"Five Whys\" technique was developed by:","opts":{"A":"Alan Turing","B":"Sakichi Toyoda","C":"George Polya","D":"Edward de Bono"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":125,"q":"The \"Five Whys' technique involves:","opts":{"A":"Asking \"What?\" five times","B":"Asking \"Why?\" repeatedly to peel away layers of symptoms","C":"Asking \"How?\" five times","D":"Asking \"When?\" five times"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":126,"q":"A fishbone (Ishikawa) diagram categorises potential causes into:","opts":{"A":"Only two groups","B":"Major groups like Methods, Machines, Materials, Manpower","C":"Only one group","D":"Random groups"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":127,"q":"Fault Tree Analysis (FTA) is:","opts":{"A":"A random method","B":"A top-down deductive approach using Boolean logic","C":"A brainstorming technique","D":"A lateral thinking method"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":128,"q":"Root Cause Analysis requires a culture that focuses on:","opts":{"A":"Blaming individuals","B":"Systems and processes, not individuals","C":"Punishment","D":"Ignoring failures"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":129,"q":"In computer science, proof establishes:","opts":{"A":"Personal opinion","B":"The truth or validity of a statement beyond doubt using logical deductions","C":"Random facts","D":"Heuristic guesses"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":130,"q":"Deductive reasoning moves from:","opts":{"A":"Specific to general","B":"General principles to a specific conclusion","C":"Random to structured","D":"Unstructured to structured"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":131,"q":"A loop invariant is:","opts":{"A":"A condition that is always false","B":"A condition that is true before and after each iteration of a loop","C":"A variable declaration","D":"A function definition"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":132,"q":"Proving a loop invariant demonstrates:","opts":{"A":"The loap is fast","B":"The logp is correct","C":"The loop is unnecessary","D":"The loap is infinite"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":133,"q":"Inductive reasoning moves from:","opts":{"A":"General to specific","B":"Specific observations to a general canclusion","C":"Deductive to inductive","D":"Random to structured"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":134,"q":"Mathematical induction is:","opts":{"A":"A heuristic method","B":"A formal proof method with base case and inductive step","C":"A creative technique","D":"A brainstorming technique"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":135,"q":"The proof that any comparison-based sorting algorithm requires at least Q(m log n) comparisons:","opts":{"A":"ls irrelevant to algorithm design","B":"Motivates the search for algorithms that achieve this lower bound","C":"Proves sorting is impossible","D":"Shows all sorting algorithms are equal"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":136,"q":"Divide and conquer involves:","opts":{"A":"Solving the whole problem at once","B":"Breaking a problem into smaller subproblems, solving them recursively, and combining results","C":"Using only iterative methods","D":"Avoiding recursion"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":137,"q":"Binary search is an example of:","opts":{"A":"Brainstorming","B":"Divide and conquer","C":"Trial and error","D":"Lateral thinking"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":138,"q":"Strassen's matrix multiplication has time complexity:","opts":{"A":"O(n)","B":"Ofn*log,7) = O(n*2.807)","C":"O(n?)","D":"O(n log n)"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":139,"q":"Fast Fourier Transform (FFT) achieves:","opts":{"A":"O(n²)","B":"O(n³)","C":"O(n log n)","D":"O(n!)"},"answer":"C","topic":"Solution Techniques (Part 2)"},{"id":140,"q":"Divide and conquer as a general problem-solving strategy applies to:","opts":{"A":"Only mathematical problems","B":"Complex problems including project management and debugging","C":"Only sorting problems","D":"Only search problems"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":141,"q":"The base case in a divide-and-conquer algorithm is:","opts":{"A":"The most complex case","B":"The simplest case solved directly","C":"The recursive case","D":"The combination step"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":142,"q":"According to Polya, a mistake in the first stage (Understand the Problem) will:","opts":{"A":"Have no effect","B":"Propagate through the entire solution","C":"Only affect the final output","D":"Be corrected automatically"},"answer":"B","topic":"General Problem-Solving Process & Algorithm Development"},{"id":143,"q":"The \"Look Back\" stage in Polya's process is often:","opts":{"A":"The most emphasized","B":"The most neglected","C":"The quickest","D":"The easiest"},"answer":"B","topic":"General Problem-Solving Process & Algorithm Development"},{"id":144,"q":"During the \"Understand the Problem\" stage, one should identify:","opts":{"A":"Only the inputs","B":"Inputs, outputs, constraints, assumptions, and edge cases","C":"Only the algorithm to use","D":"Only the programming language"},"answer":"B","topic":"General Problem-Solving Process & Algorithm Development"},{"id":145,"q":"In the \"Understand the Problem' stage, drawing a diagram helps to:","opts":{"A":"Waste time","B":"Reveal hidden patterns","C":"Confuse the solver","D":"Avoid solving the problem"},"answer":"B","topic":"General Problem-Solving Process & Algorithm Development"},{"id":146,"q":"The \"Devise a Plan\" stage is the bridge between:","opts":{"A":"Implementation and testing","B":"Problem statement and its solution","C":"Coding and debugging","D":"Requirements and design"},"answer":"B","topic":"General Problem-Solving Process & Algorithm Development"},{"id":147,"q":"Stepwise refinement is the process of:","opts":{"A":"Writing code directly","B":"Starting with a high-level description and repeatedly breaking it down into more detailed sub-steps","C":"Skipping details","D":"Using only one level of detail"},"answer":"B","topic":"General Problem-Solving Process & Algorithm Development"},{"id":148,"q":"Top-down design works from:","opts":{"A":"The specific to the general","B":"The general to the specific","C":"The middle to both ends","D":"Random order"},"answer":"B","topic":"General Problem-Solving Process & Algorithm Development"},{"id":149,"q":"Stubs in top-down design are:","opts":{"A":"Complete implementations","B":"Dummy implementations that return fixed values","C":"Final code","D":"Error messages"},"answer":"B","topic":"General Problem-Solving Process & Algorithm Development"},{"id":150,"q":"The KISS principle in algorithm design stands for:","opts":{"A":"Keep It Simple and Systematic","B":"Keep It Simple, Stupid","C":"Keep It Structured and Scientific","D":"Keep It Standard and Safe"},"answer":"B","topic":"General Problem-Solving Process & Algorithm Development"},{"id":151,"q":"Robustness in an algorithm refers to:","opts":{"A":"How fast it runs","B":"How well it handles invalid input gracefully","C":"How much memory it uses","D":"How complex it is"},"answer":"B","topic":"General Problem-Solving Process & Algorithm Development"},{"id":152,"q":"Natural language algorithm descriptions should use:","opts":{"A":"Only passive voice","B":"Imperative verbs like \"Set,\" \"Compute,\" \"If...then,\" \"While\"","C":"Complex sentences only","D":"Ambiguous pronouns"},"answer":"B","topic":"General Problem-Solving Process & Algorithm Development"},{"id":153,"q":"The running-maximum approach for finding the largest of three numbers uses:","opts":{"A":"Only one comparison","B":"Two comparisons","C":"Three comparisons","D":"Four comparisons"},"answer":"B","topic":"General Problem-Solving Process & Algorithm Development"},{"id":154,"q":"A flowchart is:","opts":{"A":"A text-based algorithm description","B":"A diagrammatic representation using standardized geometric shapes","C":"A programming language","D":"A data structure"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":155,"q":"The terminator symbol in a flowchart represents:","opts":{"A":"A decision","B":"The start or end of a process","C":"A computation","D":"Input/Output"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":156,"q":"A parallelogram in a flowchart represents:","opts":{"A":"Start/End","B":"Input/Output","C":"Decision","D":"Process"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":157,"q":"A diamond in a flowchart represents:","opts":{"A":"Start/End","B":"Input/Output","C":"Decision","D":"Process"},"answer":"C","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":158,"q":"A rectangle in a flowchart represents:","opts":{"A":"Start/End","B":"Input/Output","C":"Decision","D":"Process"},"answer":"D","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":159,"q":"Flow lines in a flowchart indicate:","opts":{"A":"The data values","B":"The direction of control flow","C":"The variable names","D":"The output format"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":160,"q":"In a flowchart, a decision diamond has:","opts":{"A":"Two entries and one exit","B":"Gne entry and two or more exits","C":"One entry and one exit","D":"No entries"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":161,"q":"The connector symbol ina flowchart is used to:","opts":{"A":"Connect arithmetic operations","B":"Connect flow lines from different parts of the chart","C":"Connect variables","D":"Connect to external programs"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":162,"q":"Pseudocode is:","opts":{"A":"A programming language with strict syntax","B":"A human-readable, structured way to describe algorithms using natural language and programming-like constructs","C":"A compiled program","D":"A hardware description language"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":163,"q":"An advantage of pseudocode is:","opts":{"A":"It requires compiler errors","B":"Ithas no syntax worries; focus is purely on logic","C":"It can be executed directly","D":"It is a programming language"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":164,"q":"In pseudocode conventions, the left arrow (←) is used for:","opts":{"A":"Comparison","B":"Assignment","C":"Input","D":"Output"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":165,"q":"The keyword ENDIF in pseudocode indicates:","opts":{"A":"End of program","B":"End of an IF statement block","C":"End of aloop","D":"End of a function"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":166,"q":"The keyword ENDWHILE in pseudocode indicates:","opts":{"A":"End of program","B":"End of a WHILE loop","C":"End of an IF statement","D":"End of a function"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":167,"q":"The FOR loop in pseudocode is used for:","opts":{"A":"Infinite loops","B":"Counter-controlled iteration","C":"Random iteration","D":"Error handling"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":168,"q":"The REPEAT-UNTIL loop in pseudocode checks the condition:","opts":{"A":"At the beginning of the loop","B":"At the end of the loop","C":"In the middle of the loop","D":"Not at all"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":169,"q":"CASE statement in pseudocode is used for:","opts":{"A":"Single condition","B":"Multi-way branching","C":"Looping","D":"Function definition"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":170,"q":"A decision table is:","opts":{"A":"A flowchart","B":"A tabular representation of complex decision logic","C":"A programming language","D":"A data structure"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":171,"q":"A decision table consists of how many quadrants?","opts":{"A":"2","B":"4","C":"6","D":"8"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":172,"q":"The Condition Stub in a decision table lists:","opts":{"A":"The actions to be taken","B":"The conditions that affect the decision","C":"The outputs","D":"The variables"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":173,"q":"The Action Stub in a decision table lists:","opts":{"A":"The conditions","B":"The possible actions to be taken","C":"The inputs","D":"The constraints"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":174,"q":"In adecision table, each column represents:","opts":{"A":"A condition","B":"A rule (combination of condition outcomes)","C":"An action","D":"A variable"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":175,"q":"Decision tables are extensively used in:","opts":{"A":"Only scientific research","B":"Business rules, software testing, and systems analysis","C":"Only game development","D":"Only hardware design"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":176,"q":"In alimited-entry decision table, condition entries are typically:","opts":{"A":"Numbers only","B":"Y/N, T/F, or discrete values","C":"Text only","D":"Images"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":177,"q":"A decision tree is:","opts":{"A":"A flowchart with loops","B":"A graphical, hierarchical representation of decisions and their consequences","C":"A programming language","D":"A data structure for arrays"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":178,"q":"In a decision tree, internal nodes represent:","opts":{"A":"Actions","B":"Tests on conditions","C":"Final outcomes","D":"Variables"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":179,"q":"In a decision tree, leaf nodes represent:","opts":{"A":"Conditions","B":"Decision outcomes or actions","C":"Internal nodes","D":"Branches"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":180,"q":"Decision trees are widely used in:","opts":{"A":"Only algorithm design","B":"Machine learning, business decision analysis, and troubleshooting","C":"Only sorting problems","D":"Only hardware design"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":181,"q":"A decision tree can be directly translated into:","opts":{"A":"Only flowcharts","B":"Nested if-else pseudocode or cascading diamonds in a flowchart","C":"Only tables","D":"Only graphs"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":182,"q":"VB.Net is developed by:","opts":{"A":"Apple","B":"Microsoft","C":"Google","D":"Oracle"},"answer":"B","topic":"VB.Net Introduction"},{"id":183,"q":"VB.Net is implemented on:","opts":{"A":"Java Virtual Machine","B":"NET Framework","C":"Python runtime","D":"C++ runtime"},"answer":"B","topic":"VB.Net Introduction"},{"id":184,"q":"VB.Net is:","opts":{"A":"Not backwards-compatible with VB6","B":"Fully backwards-compatible with VB6","C":"Compatible only with VBS","D":"Compatible with all versions"},"answer":"A","topic":"VB.Net Introduction"},{"id":185,"q":"In VB.Net, everything is:","opts":{"A":"A primitive type only","B":"An object","C":"A function","D":"A global variable"},"answer":"B","topic":"VB.Net Introduction"},{"id":186,"q":"All objects in VB.Net inherit from the base class:","opts":{"A":"System","B":"Object","C":"Base","D":"Root"},"answer":"B","topic":"VB.Net Introduction"},{"id":187,"q":"VB.Net can run on Mono, which is:","opts":{"A":"A Microsoft product","B":"An open-source alternative to NET for other platforms","C":"A programming language","D":"A database system"},"answer":"B","topic":"VB.Net Introduction"},{"id":188,"q":"Reasons that make VB.Net widely used include all EXCEPT:","opts":{"A":"Modern, general purpose","B":"Object-oriented","C":"Only runs on Windows","D":"Structured language"},"answer":"C","topic":"VB.Net Introduction"},{"id":189,"q":"Strong programming features of VB.Net include all EXCEPT:","opts":{"A":"Boolean Conditions","B":"Automatic Garbage Collection","C":"No object-oriented support","D":"Easy-to-use Generics"},"answer":"C","topic":"VB.Net Introduction"},{"id":190,"q":"The first line of a VB.Net program typically includes:","opts":{"A":"Program start","B":"Imports System","C":"Main function","D":"Console.WriteLine"},"answer":"B","topic":"VB.Net Introduction"},{"id":191,"q":"The entry point for all VB.Net programs is:","opts":{"A":"The Import statement","B":"The Main procedure","C":"The Class declaration","D":"The Module declaration"},"answer":"B","topic":"VB.Net Introduction"},{"id":192,"q":"WriteLine is a method of which class?","opts":{"A":"System.Console","B":"System. String","C":"System Integer","D":"System.Array"},"answer":"A","topic":"VB.Net Introduction"},{"id":193,"q":"Console ReadKey() is used in Visual Studio to:","opts":{"A":"Read user input","B":"Prevent the screen from closing quickly","C":"Write output","D":"Declare variables"},"answer":"B","topic":"VB.Net Introduction"},{"id":194,"q":"To compile a VB.Net program from the command line, you use:","opts":{"A":"vbc helloworld.vb","B":"vb helloworld.vb","C":"compile helloworld.vb","D":"run helloworld.vb"},"answer":"A","topic":"VB.Net Introduction"},{"id":195,"q":"An identifier in VB.Net must begin with:","opts":{"A":"A digit","B":"A letter","C":"A symbol","D":"A number"},"answer":"B","topic":"VB.Net Introduction"},{"id":196,"q":"Which of the following is NOT a rule for naming classes in VB.Net?","opts":{"A":"Must begin with a letter","B":"Cannot contain embedded spaces","C":"Can start with a digit","D":"Cannot be areserved keyword"},"answer":"C","topic":"VB.Net Introduction"},{"id":197,"q":"The Dim keyword in VB.Net is used for:","opts":{"A":"Defining a function","B":"Declaring a variable","C":"Defining a class","D":"Defining a module"},"answer":"B","topic":"VB.Net Introduction"},{"id":198,"q":"An access modifier that allows types in the same assembly to access the enclosing type is:","opts":{"A":"Public","B":"Protected","C":"Friend","D":"Private"},"answer":"C","topic":"VB.Net Introduction"},{"id":199,"q":"The Static modifier on a local variable in VB.Net ensures:","opts":{"A":"The variable is accessible everywhere","B":"The variable is initialized only once and retains its value","C":"The variable is a constant","D":"The variable is always public"},"answer":"B","topic":"VB.Net Introduction"},{"id":200,"q":"The Integer data type in VB.Net occupies:","opts":{"A":"2 bytes","B":"4 bytes","C":"8 bytes","D":"16 bytes"},"answer":"B","topic":"VB.Net Data Types & Variables"},{"id":201,"q":"The Long data typein VB.Net occupies:","opts":{"A":"2 bytes","B":"4 bytes","C":"8 bytes","D":"16 bytes"},"answer":"C","topic":"VB.Net Data Types & Variables"},{"id":202,"q":"The Double data type occupies:","opts":{"A":"2 bytes","B":"4 bytes","C":"8 bytes","D":"16 bytes"},"answer":"C","topic":"VB.Net Data Types & Variables"},{"id":203,"q":"The Decimal data type occupies:","opts":{"A":"2 bytes","B":"4 bytes","C":"8 bytes","D":"16 bytes"},"answer":"D","topic":"VB.Net Data Types & Variables"},{"id":204,"q":"The Boolean data type can store:","opts":{"A":"Numbers","B":"True or False","C":"Characters","D":"Dates"},"answer":"B","topic":"VB.Net Data Types & Variables"},{"id":205,"q":"The Char data type in VB.Net can store:","opts":{"A":"Numbers up to 255","B":"A single Unicode character","C":"A string of characters","D":"Boolean values"},"answer":"B","topic":"VB.Net Data Types & Variables"},{"id":206,"q":"The Date data type can store dates from:","opts":{"A":"1900 to 2100","B":"January 1, 0001 to December 31, 9999","C":"1970 to 2038","D":"2000 to 3000"},"answer":"B","topic":"VB.Net Data Types & Variables"},{"id":207,"q":"The String data type can store approximately:","opts":{"A":"255 characters","B":"2 billion Unicode characters","C":"10,000 characters","D":"1,000 characters"},"answer":"B","topic":"VB.Net Data Types & Variables"},{"id":208,"q":"Clnt is used to convert an expression to:","opts":{"A":"Character","B":"Integer","C":"Long","D":"Double"},"answer":"B","topic":"VB.Net Data Types & Variables"},{"id":209,"q":"CStr is used to convert an expression to:","opts":{"A":"Integer","B":"Character","C":"String","D":"Double"},"answer":"C","topic":"VB.Net Data Types & Variables"},{"id":210,"q":"CDblis used to convert an expression to:","opts":{"A":"Integer","B":"Character","C":"String","D":"Double"},"answer":"D","topic":"VB.Net Data Types & Variables"},{"id":211,"q":"CDate is used to convert an expression to:","opts":{"A":"Integer","B":"Character","C":"Date","D":"Double"},"answer":"C","topic":"VB.Net Data Types & Variables"},{"id":212,"q":"Console ReadLine() is used to:","opts":{"A":"Output data to the console","B":"Accept input from the user","C":"Read a file","D":"Close the console"},"answer":"B","topic":"VB.Net Data Types & Variables"},{"id":213,"q":"Constants in VB.Net are declared using:","opts":{"A":"Dim","B":"Const","C":"Var","D":"Let"},"answer":"B","topic":"VB.Net Data Types & Variables"},{"id":214,"q":"Enumerations in VB.Net are declared using:","opts":{"A":"Dim","B":"Const","C":"Enum","D":"Structure"},"answer":"C","topic":"VB.Net Data Types & Variables"},{"id":215,"q":"An enumeration is:","opts":{"A":"A set of floating-point constants","B":"A set of named integer constants","C":"A set of string constants","D":"A set of Boolean constants"},"answer":"B","topic":"VB.Net Data Types & Variables"},{"id":216,"q":"A variable declared within a procedure is called:","opts":{"A":"A global variable","B":"A local variable","C":"A module variable","D":"A class variable"},"answer":"B","topic":"VB.Net Data Types & Variables"},{"id":217,"q":"Declaration statements in VB.Net are used to:","opts":{"A":"Perform actions","B":"Name and define variables, constants, and procedures","C":"Loop through code","D":"Handle errors"},"answer":"B","topic":"VB.Net Statements & Operators"},{"id":218,"q":"Executable statements in VB.Net are used to:","opts":{"A":"Declare variables","B":"Initiate actions like calling methods or assigning values","C":"Define classes","D":"Declare constants"},"answer":"B","topic":"VB.Net Statements & Operators"},{"id":219,"q":"The Dim statement is used to:","opts":{"A":"Define a constant","B":"Declare and allocate storage for one or more variables","C":"Define a function","D":"Define a class"},"answer":"B","topic":"VB.Net Statements & Operators"},{"id":220,"q":"The Const statement is used to:","opts":{"A":"Declare a variable","B":"Declare and define one or more constants","C":"Declare a function","D":"Declare a class"},"answer":"B","topic":"VB.Net Statements & Operators"},{"id":221,"q":"The Enum statement is used to:","opts":{"A":"Declare a variable","B":"Declare an enumeration and define its members","C":"Declare a function","D":"Declare a class"},"answer":"B","topic":"VB.Net Statements & Operators"},{"id":222,"q":"The Class staternent is used to:","opts":{"A":"Declare a variable","B":"Declare the name of a class and its definition","C":"Declare a function","D":"Declare a constant"},"answer":"B","topic":"VB.Net Statements & Operators"},{"id":223,"q":"The Structure statement is used to:","opts":{"A":"Declare a variable","B":"Declare the name of a structure and its definition","C":"Declare a class","D":"Declare a function"},"answer":"B","topic":"VB.Net Statements & Operators"},{"id":224,"q":"The Module statement is used to:","opts":{"A":"Declare a variable","B":"Declare the name of a module and its definition","C":"Declare a class","D":"Declare a function"},"answer":"B","topic":"VB.Net Statements & Operators"},{"id":225,"q":"The Function statement is used to:","opts":{"A":"Declare a subroutine","B":"Declare the name, parameters, and code that define a Function procedure","C":"Declare a variable","D":"Declare a class"},"answer":"B","topic":"VB.Net Statements & Operators"},{"id":226,"q":"The Sub statement is used to:","opts":{"A":"Declare a function that returns a value","B":"Declare the name, parameters, and code that define a Sub procedure","C":"Declare a variable","D":"Declare a class"},"answer":"B","topic":"VB.Net Statements & Operators"},{"id":227,"q":"The Mod operator returns:","opts":{"A":"The quotient","B":"The remainder of an integer division","C":"The product","D":"The sum"},"answer":"B","topic":"VB.Net Statements & Operators"},{"id":228,"q":"The Is operator in VB.Net compares:","opts":{"A":"Values","B":"Object references","C":"Strings","D":"Numbers"},"answer":"B","topic":"VB.Net Statements & Operators"},{"id":229,"q":"The Like operator in VB.Net compares:","opts":{"A":"Numbers","B":"A string against a pattern","C":"Objects","D":"Boolean values"},"answer":"B","topic":"VB.Net Statements & Operators"},{"id":230,"q":"The XOR operator in VB.Net performs:","opts":{"A":"Comparison","B":"Exclusive disjunction (bitwise and logical)","C":"Addition","D":"Multiplication"},"answer":"B","topic":"VB.Net Statements & Operators"},{"id":231,"q":"The += operator in VB.Net is an example of:","opts":{"A":"Comparison operator","B":"Assignment operator","C":"Logical operator","D":"Bitwise operator"},"answer":"B","topic":"VB.Net Statements & Operators"},{"id":232,"q":"The << operator in VB.Net performs:","opts":{"A":"Comparison","B":"Left shift","C":"Right shift","D":"Addition"},"answer":"B","topic":"VB.Net Statements & Operators"},{"id":233,"q":"The >> operator in VB.Net performs:","opts":{"A":"Comparison","B":"Left shift","C":"Right shift","D":"Subtraction"},"answer":"C","topic":"VB.Net Statements & Operators"},{"id":234,"q":"The Not operator in VB.Net performs:","opts":{"A":"Addition","B":"Logical and bitwise negation","C":"Multiplication","D":"Comparison"},"answer":"B","topic":"VB.Net Statements & Operators"},{"id":235,"q":"In VB.Net operator precedence, the highest precedence is given to:","opts":{"A":"Addition","B":"Exponentiation (*)","C":"Compatison operators","D":"Logical operators"},"answer":"B","topic":"VB.Net Statements & Operators"},{"id":236,"q":"The If... Then statement in VB.Net is used for:","opts":{"A":"Looping","B":"Decision making","C":"Variable declaration","D":"Function definition"},"answer":"B","topic":"VB.Net Decision Making & Loops"},{"id":237,"q":"The Select Case statement in VB.Net allows:","opts":{"A":"Looping","B":"Testing a variable for equality against a list of values","C":"Variable declaration","D":"Function definition"},"answer":"B","topic":"VB.Net Decision Making & Loops"},{"id":238,"q":"The Do Loop in VB.Net:","opts":{"A":"Executes a block once","B":"Repeats a block while or until a condition is true","C":"Declares a variable","D":"Defines a function"},"answer":"B","topic":"VB.Net Decision Making & Loops"},{"id":239,"q":"The For...Next loop in VB.Net:","opts":{"A":"Repeats for each element in acollection","B":"Repeats a group of statements a specified number of times","C":"Executes as long as a conditionis true","D":"Never executes"},"answer":"B","topic":"VB.Net Decision Making & Loops"},{"id":240,"q":"The For Each...Next loop in VB.Net:","opts":{"A":"Repeats a specified number of times","B":"Repeats for each element in a collection","C":"Executes as long as a conditionis true","D":"Executes once"},"answer":"B","topic":"VB.Net Decision Making & Loops"},{"id":241,"q":"The While...End While loop in VB.Net:","opts":{"A":"Repeats a group of statements as long as a condition is True","B":"Repeats a specified number of times","C":"Executes once","D":"Never executes"},"answer":"B","topic":"VB.Net Decision Making & Loops"},{"id":242,"q":"The With...End With statement in VB.Net:","opts":{"A":"ls alooping construct","B":"Executes a series of statements that repeatedly refer to a single object","C":"Declares a variable","D":"Defines a function"},"answer":"B","topic":"VB.Net Decision Making & Loops"},{"id":243,"q":"The Exit statement in VB.Net:","opts":{"A":"Starts a loop","B":"Terminates a loop or select case statement","C":"Declares a variable","D":"Defines a function"},"answer":"B","topic":"VB.Net Decision Making & Loops"},{"id":244,"q":"The Continue statement in VB.Net:","opts":{"A":"Exits the loop completely","B":"Causes the loop to skip the remainder of its body and retest the condition","C":"Declares a variable","D":"Defines a function"},"answer":"B","topic":"VB.Net Decision Making & Loops"},{"id":245,"q":"The GoTo statement in VB.Net:","opts":{"A":"ls recommended for all programs","B":"Transfers control to a labeled statement","C":"Is the only way to exit aloop","D":"Declares a variable"},"answer":"B","topic":"VB.Net Decision Making & Loops"},{"id":246,"q":"In a For...Next loop, the Step keyword is used to:","opts":{"A":"End the loop","B":"Define how the control variable increments or decrements","C":"Start the loop","D":"Define the condition"},"answer":"B","topic":"VB.Net Decision Making & Loops"},{"id":247,"q":"A nested loop is:","opts":{"A":"A loop with no exit","B":"A loop within a loop","C":"A loop with one iteration","D":"A loop that never executes"},"answer":"B","topic":"VB.Net Decision Making & Loops"},{"id":248,"q":"In a Do...Loop, checking the condition at the end of the loop means:","opts":{"A":"The loop never executes","B":"The loop executes at least once","C":"The loop condition is checked before execution","D":"The loop is infinite"},"answer":"B","topic":"VB.Net Decision Making & Loops"},{"id":249,"q":"In a Do...Loop, checking the condition at the beginning means:","opts":{"A":"The loop executes at least once","B":"The loap may not execute at all","C":"The loap is infinite","D":"The loop never executes"},"answer":"B","topic":"VB.Net Decision Making & Loops"},{"id":250,"q":"A While loop can lead to an infinite loop if:","opts":{"A":"The condition is false initially","B":"The variable that controls the condition is not updated","C":"The loap executes once","D":"The loap is properly structured"},"answer":"B","topic":"VB.Net Decision Making & Loops"},{"id":251,"q":"Every Visual Basic control consists of three elements:","opts":{"A":"Properties, Methods, and Variables","B":"Properties, Methods, and Events","C":"Variables, Constants, and Functions","D":"Classes, Objects, and Methods"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":252,"q":"A property in VB.Net is:","opts":{"A":"A method that performs an action","B":"A value or characteristic held by a Visual Basic object","C":"A signal that informs an application","D":"A variable declaration"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":253,"q":"A method in VB.Net is:","opts":{"A":"A property value","B":"A procedure created as a member of a class that causes an object to do something","C":"An event","D":"A variable"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":254,"q":"An event in VB.Net is:","opts":{"A":"A property value","B":"A signal that informs an application that something important has occurred","C":"A method","D":"A variable"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":255,"q":"The MessageBox control's Show method is used to:","opts":{"A":"Declare a variable","B":"Display a message box","C":"Close the application","D":"Read user input"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":256,"q":"The Handles keyword in VB.Net is used to:","opts":{"A":"Declare a variable","B":"Associate an event handler with an event","C":"Define a function","D":"Declare aconstant"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":257,"q":"A TextBox control in VB.Net is used for:","opts":{"A":"Displaying images","B":"Input and display of text","C":"Displaying hierarchical data","D":"Selecting dates"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":258,"q":"ALabel controlin VB.Net is used for:","opts":{"A":"Input of text","B":"Displaying text","C":"Displaying images","D":"Selecting from a list"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":259,"q":"A RadioButton control in VB.Net:","opts":{"A":"Allows multiple selections","B":"Enables selection of a single option from a group","C":"Displays hierarchical data","D":"Displays images"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":260,"q":"A CheckBox control in VB.Net:","opts":{"A":"Enables selection of a single option","B":"Represents a Windows CheckBox","C":"Displays hierarchical data","D":"Selects dates"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":261,"q":"The ShowDialog() method is used to:","opts":{"A":"Hide a dialog box","B":"Display a dialog box at run-time","C":"Close a dialog box","D":"Declare a dialog box"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":262,"q":"DialogResult.OK is returned when the user clicks:","opts":{"A":"The Cancel button","B":"The OK button","C":"The Abort button","D":"The Ignore button"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":263,"q":"DialogResult.Cancel is returned when the user clicks:","opts":{"A":"The OK button","B":"The Cancel button","C":"The Yes button","D":"The No button"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":264,"q":"The ColorDialog control in VB.Net is used to:","opts":{"A":"Select a file to open","B":"Display available colors for selection","C":"Save a file","D":"Print a document"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":265,"q":"The FontDialog control is used to:","opts":{"A":"Select a file","B":"Choose a font","C":"Select a color","D":"Print a document"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":266,"q":"The OpenFileDialog control is used to:","opts":{"A":"Save a file","B":"Open a file","C":"Print a document","D":"Select a font"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":267,"q":"The SaveFileDialog control is used to:","opts":{"A":"Open a file","B":"Save a file","C":"Print a document","D":"Select a color"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":268,"q":"The PrintDialog control is used to:","opts":{"A":"Open a file","B":"Save a file","C":"Print documents","D":"Select a font"},"answer":"C","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":269,"q":"The String keyword in VB.Net is an alias for:","opts":{"A":"System.Array","B":"System.String","C":"System.Object","D":"System.Integer"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":270,"q":"The Length property of a String object returns:","opts":{"A":"The first character","B":"The number of characters in the string","C":"The last character","D":"The string value"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":271,"q":"The Chars property of a String object returns:","opts":{"A":"The entire string","B":"A character at a specified position","C":"The length of the string","D":"The string type"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":272,"q":"The Compare method of the String class is used to:","opts":{"A":"Join strings","B":"Compare two strings","C":"Find a substring","D":"Convert to uppercase"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":273,"q":"The Contains method of the String class is used to:","opts":{"A":"Compare strings","B":"Check if a substring exists within a string","C":"Join strings","D":"Convert to lowercase"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":274,"q":"The Substring method of the String class is used to:","opts":{"A":"Compare strings","B":"Extract a portion of a string","C":"Join strings","D":"Replace characters"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":275,"q":"The Join method of the String class is used to:","opts":{"A":"Split a string","B":"Concatenate array elements into a single string","C":"Compare strings","D":"Find substrings"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":276,"q":"The String class in VB.Net has how many properties?","opts":{"A":"1","B":"2","C":"3","D":"4"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":277,"q":"The vbCrLf constant in VB.Net represents:","opts":{"A":"A comma","B":"A carriage return and line feed (new line)","C":"A tab character","D":"A space"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":278,"q":"A Function procedure in VB.Net:","opts":{"A":"Does not return a value","B":"Returns a value","C":"Only performs actions","D":"Cannot have parameters"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":279,"q":"A Sub procedure in VB.Net:","opts":{"A":"Returns a value","B":"Does not return a value","C":"Always returns a string","D":"Cannot have parameters"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":280,"q":"The syntax for a Function declaration is:","opts":{"A":"Sub FunctionName() End Sub","B":"Function FunctionName() As ReturnType... End Function","C":"Dim FunctionName() As ReturnType","D":"Const FunctionName() As ReturnType"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":281,"q":"A function can return a value to calling code by:","opts":{"A":"Using the Return statement only","B":"Using the Return statement OR assigning to the function name","C":"Only assigning to a variable","D":"Only using Console. WriteLine"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":282,"q":"Recursion is when:","opts":{"A":"A function calls another function","B":"A function calls itself","C":"A function calls a subroutine","D":"A subroutine calls a function"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":283,"q":"The factorial function is a classic example of:","opts":{"A":"Iteration","B":"Recursion","C":"Linear search","D":"Binary search"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":284,"q":"A recursive function must have:","opts":{"A":"Only a recursive case","B":"A base case and a recursive case","C":"No parameters","D":"No return value"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":285,"q":"The base case in a recursive function:","opts":{"A":"Causes infinite recursion","B":"Terminates the recursion","C":"Has no effect","D":"Is always called first"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":286,"q":"In a recursive function for factorial, the base case is:","opts":{"A":"num > 1","B":"num = 1","C":"num = 0","D":"num < 1"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":287,"q":"The Try...Catch...Finally structure in VB.Net is used for:","opts":{"A":"Looping","B":"Error handling","C":"Variable declaration","D":"Function definition"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":288,"q":"In aTry...Catch block, the Try section contains:","opts":{"A":"Error handling code","B":"Code that might throw an exception","C":"The Finally block","D":"Variable declarations"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":289,"q":"In aTry...Catch block, the Catch section contains:","opts":{"A":"Code that might throw an exception","B":"Code that handles the exception","C":"Code that always executes","D":"Variable declarations"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":290,"q":"The Finally block in a Try...Catch structure:","opts":{"A":"Only executes if an exception occurs","B":"Always executes, regardless of whether an exception occurred","C":"Only executes if no exception occurs","D":"Never executes"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":291,"q":"Exceptions in VB.Net are represented by:","opts":{"A":"Variables","B":"Exception objects","C":"Functions","D":"Constants"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":292,"q":"The Message property of an Exception object contains:","opts":{"A":"The stack trace","B":"The error message","C":"The exception type","D":"The source"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":293,"q":"The StackTrace property of an Exception object contains:","opts":{"A":"The error message","B":"The call stack information","C":"The exception type","D":"The source"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":294,"q":"To create a custom exception in VB.Net, you:","opts":{"A":"Use the Dim keyword","B":"Throw anew Exception object with a custom message","C":"Use the Const keyword","D":"Use the Module keyword"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":295,"q":"It is good practice to throw an exception when:","opts":{"A":"The function completes successfully","B":"The function cannot achieve its defined functionality","C":"The user requests it","D":"The program starts"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":296,"q":"The Throw statement in VB.Net is used to:","opts":{"A":"Handle an exception","B":"Throw/raise an exception","C":"Catch an exception","D":"Declare a variable"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":297,"q":"Multiple Catch blacks can be used to:","opts":{"A":"Handle the same exception type","B":"Handle different types of exceptions differently","C":"Always execute the same code","D":"Ignore all exceptions"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":298,"q":"A NullReferenceException occurs when:","opts":{"A":"A variable is assigned a value","B":"Code attempts to use an object reference that is Nothing","C":"A file is not found","D":"Division by zero occurs"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":299,"q":"An IOException occurs when:","opts":{"A":"A variable is not initialized","B":"An input/output operation fails","C":"A calculation overflows","D":"A string is empty"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":300,"q":"Division by zero in VB.Net will throw:","opts":{"A":"A NullReferenceException","B":"An OverflowException or DivideByZeroException","C":"An IOException","D":"A FormatException"},"answer":"B","topic":"VB.Net Controls, Strings, Functions & Error Handling"},{"id":301,"q":"Computing, from the perspective of a computer scientist, is fundamentally about:","opts":{"A":"Using computers to manage, process, and communicate information","B":"Solving problems through systematic, automatable processes","C":"Building hardware","D":"Writing code in any language"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":302,"q":"Data is defined as:","opts":{"A":"Processed, organized, or structured facts that are meaningful","B":"Raw facts, figures, or symbols that have no meaning by themselves","C":"A finite sequence of well-defined steps","D":"An algorithm expressed in a computer language"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":303,"q":"Information is:","opts":{"A":"Raw facts with no meaning","B":"Data that has been processed, organized, or structured to make it meaningful","C":"A program","D":"An obstacle in problem solving"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":304,"q":"An algorithm is:","opts":{"A":"An algorithm expressed in a language that a computer can execute","B":"A finite sequence of well-defined, unambiguous steps that solves a specific problem or accomplishes a task","C":"Raw facts","D":"The computer itself"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":305,"q":"A problem exists when an individual (or system) has:","opts":{"A":"Only an initial state","B":"A clear initial state and a desired goal state, but the path from initial to goal is not immediately obvious","C":"Only a goal state","D":"No obstacles"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":306,"q":"The three components of a problem are:","opts":{"A":"Data, information, algorithm","B":"Initial state, goal state, and obstacles/challenges","C":"Program, computer, user","D":"Observation, needs, opportunities"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":307,"q":"Problems are identified through:","opts":{"A":"Only observation of symptoms","B":"Observation of symptoms, needs analysis, and opportunities","C":"Only programming","D":"Only algorithms"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":308,"q":"A well-formed problem statement typically includes:","opts":{"A":"Only the current state","B":"The current state, the goal state, the context and constraints, and the stakeholders","C":"Only the goal state","D":"Only the algorithm"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":309,"q":"Nor-routine (ill-defined) problems:","opts":{"A":"Have a known algorithm that guarantees a solution","B":"May be ambiguous; often have no single \"correct\" answer; require creativity and heuristics","C":"Are always repetitive","D":"Can be solved by a fixed set of rules only"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":310,"q":"George Polya's four essential steps (from How to Solve It, 1945) are:","opts":{"A":"Understand the problem, Devise a plan, Carry out the plan, Look back","B":"Data, Information, Algorithm, Program","C":"Observation, Needs, Opportunities, Constraints","D":"Input, Process, Output, Storage"},"answer":"A","topic":"Foundations of Problem Solving in Computing"},{"id":311,"q":"A problem is solvable (decidable) if:","opts":{"A":"It can be solved by heuristics","B":"There exists an algorithm that, given any valid input, produces the correct output and always terminates after a finite number of steps","C":"It is intractable","D":"It requires exponential time"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":312,"q":"The Halting Problem is:","opts":{"A":"Solvable by a Turing machine","B":"The problem of determining, for an arbitrary program and input, whether the program will eventually halt or run forever; proven unsolvable by Turing","C":"A tractable problem","D":"Solved by binary search"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":313,"q":"Polynornial time examples include:","opts":{"A":"0(2\")","B":"O(n), Q(n lag n), O(n?)","C":"O(n)","D":"Only factorial time"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":314,"q":"An algorithm is:","opts":{"A":"An experience-based technique that may not guarantee optimality","B":"A finite sequence of well-defined instructions that produces the corresponding output and terminates in a finite number of steps","C":"A rule of thumb","D":"Always a heuristic"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":315,"q":"The five essential properties of an algorithm (Donald Knuth) are:","opts":{"A":"Speed, memory, simplicity, robustness, modularity","B":"Finiteness, Definiteness, Input, Output, Effectiveness","C":"Only finiteness and output","D":"Creativity, judgment, heuristics"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":316,"q":"Heuristics:","opts":{"A":"Always guarantee an optimal solution","B":"Are experience-based techniques that help find satisfactory (\"good enough\") solutions when an exact algorithm does not exist or is intractable","C":"Are always exact algorithms","D":"Never fail"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":317,"q":"Abstraction is:","opts":{"A":"Generating many ideas without judgment","B":"The process of filtering out unnecessary details to focus on the essential features af a problem","C":"Trial and error","D":"Mapping to a known problem"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":318,"q":"Analogy is:","opts":{"A":"Solving a new problem by recognising its similarity to a previously solved problem and transferring the solution or principles","B":"Random trial","C":"Building a morphological box","D":"Formal proof"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":319,"q":"Brainstorming {Alex Osborn) emphasises:","opts":{"A":"Immediate criticism of ideas","B":"Quantity of ideas, withholding criticism, welcoming wild ideas, and combining/improving ideas","C":"Only evaluating ideas","D":"Exact algorithms only"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":320,"q":"Trial and error consists of:","opts":{"A":"Formal mathematical proof","B":"Making successive attempts, observing outcomes, and adjusting until a satisfactory solution is found","C":"Only abstraction","D":"Mapping to SAT"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":321,"q":"Hypothesis testing involves:","opts":{"A":"Only random trials","B":"Formulating a specific, testable conjecture, designing an experiment, and analysing results to accept/reject/refine the hypothesis","C":"Generating wild ideas only","D":"Building a morphological box"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":322,"q":"Lateral thinking (Edward de Bono) seeks to:","opts":{"A":"Follow only vertical, logical steps","B":"Restructure patterns, escape dominant ideas, and generate novel insights by approaching the problem from unexpected angles","C":"Use only algorithms","D":"Avoid provocation"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":323,"q":"The classic puzzle illustrating means-end analysis is:","opts":{"A":"Nine-dot puzzle","B":"Tower of Hanoi","C":"CAPTCHA","D":"Parking space heuristic"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":324,"q":"The method of focal objects:","opts":{"A":"Forces a connection between a central problem and one or more randomly chosen unrelated objects","B":"Is formal proof","C":"Is only root-cause analysis","D":"Avoids random objects"},"answer":"A","topic":"Solution Techniques (Part 2)"},{"id":325,"q":"Morphological analysis (Fritz Zwicky) is:","opts":{"A":"Random trial","B":"A systematic method for structuring and exploring the entire set of possible solutions to a multi- dimensional problem via a morphological box","C":"Only analogy","D":"Five Whys"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":326,"q":"Root cause analysis aims to:","opts":{"A":"Treat only symptoms","B":"Identify the fundamental, underlying cause of a problem rather than merely treating its symptoms","C":"Generate wild ideas only","D":"Avoid the Five Whys"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":327,"q":"Divide and conquer strategy is:","opts":{"A":"Divide the problem into smaller subproblems of the same type, solve recursively, then combine","B":"Only lateral thinking","C":"Random entry","D":"Five Whys only"},"answer":"A","topic":"Solution Techniques (Part 2)"},{"id":328,"q":"Top-down design:","opts":{"A":"Works from the general to the specific, starting with the main function/module and breaking it into smaller functions","B":"Starts with the smallest details","C":"Avoids stubs","D":"Is only natural language"},"answer":"A","topic":"General Problem-Solving Process & Algorithm Development"},{"id":329,"q":"A flowchart uses:","opts":{"A":"Only text","B":"Standardised geornetric shapes connected by arrows to shaw sequence and flow of control","C":"Only decision tables","D":"Only pseudocode"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":330,"q":"Decision tables are best for:","opts":{"A":"Only sequential logic","B":"Complex decision logic with multiple interacting conditions, ensuring all combinations are considered","C":"Only loops","D":"Only natural language"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":331,"q":"VB.Net is:","opts":{"A":"Not object-oriented","B":"An object-oriented computer programming language implemented on the NET Framework","C":"Backwards-compatible with VB6","D":"Not part of the NET Framework"},"answer":"B","topic":"VB.Net Introduction"},{"id":332,"q":"In VB.Net, variables are declared using:","opts":{"A":"Var","B":"Dim (or an access modifier)","C":"Let only","D":"Const only"},"answer":"B","topic":"VB.Net Data Types & Variables"},{"id":333,"q":"The Main procedure in a VB.Net program is:","opts":{"A":"Optional","B":"The entry point for all VB.Net programs","C":"Only for functions","D":"Used only for comments"},"answer":"B","topic":"VB.Net Introduction"},{"id":334,"q":"An enumeration in VB.Net is:","opts":{"A":"A variable that changes","B":"A set of named integer constants","C":"Only a string","D":"A flowchart"},"answer":"B","topic":"VB.Net Data Types & Variables"},{"id":335,"q":"A program is:","opts":{"A":"Raw data","B":"An algorithm expressed in a language that a computer can execute","C":"The initial state of a problem","D":"An obstacle"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":336,"q":"A problem exists when there is:","opts":{"A":"Only a goal state","B":"A clear initial state and a desired goal state, but the path is not immediately obvious and deliberate thinking/action is required","C":"No obstacles","D":"Only data"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":337,"q":"An unsolvable problem:","opts":{"A":"Willbecome solvable with faster computers","B":"Will remain unsolvable forever, regardless of technological advances","C":"Can be solved by Al","D":"Is the same as an intractable problem"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":338,"q":"A problem is tractable if its best algorithm runs in:","opts":{"A":"Exponential time","B":"Polynomial time (O(n*) for some constant k)","C":"Factorial time","D":"Infinite time"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":339,"q":"Examples of polynomial-time (tractable) algorithms include:","opts":{"A":"O(2\") and O(n!)","B":"O(n), O(n log n), O(n?)","C":"Only O(n!)","D":"Only exponential algorithms"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":340,"q":"A heuristic is:","opts":{"A":"A procedure that always guarantees the optimal solution","B":"An experience-based technique that finds satisfactory (\"good enough\") solutions when an exact algorithm is unavailable or intractable","C":"Always a polynomial-time algorithm","D":"The same as a Turing machine"},"answer":"B","topic":"Solvability, Tractability, Algorithms & Heuristics"},{"id":341,"q":"Analogy works by:","opts":{"A":"Ignoring previous solutions","B":"Recagnising similarity to a previously solved problem and transferring the solution or its principles","C":"Only using random objects","D":"Building morphological boxes"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":342,"q":"The four fundamental principles of brainstorming (Osborn) are:","opts":{"A":"Criticise immediately, Aim for quality only, Reject wild ideas, Work alone","B":"Aim for quantity, Withhold criticism, Welcome wild ideas, Combine and improve ideas","C":"Use only algorithms, Avoid creativity, Focus on one idea, Evaluate early","D":"Only use formal proof"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":343,"q":"Hypothesis testing requires a hypothesis that is:","opts":{"A":"Vague and untestable","B":"Specific and falsifiable","C":"Always true","D":"Based only on random guesses"},"answer":"B","topic":"Solution Techniques (Part 1)"},{"id":344,"q":"Means-end analysis reduces the gap between:","opts":{"A":"Data and information","B":"Current state and goal state by identifying differences and applying operators that reduce those differences","C":"Heuristics and algorithms","D":"Input and output only"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":345,"q":"Morphological analysis (Zwicky) systematically explores:","opts":{"A":"Only one solution","B":"The entire set of possible solutions by constructing a morphological box of parameters and values","C":"Only random trials","D":"Only formal proofs"},"answer":"B","topic":"Solution Techniques (Part 2)"},{"id":346,"q":"Divide-and-conquer consists of:","opts":{"A":"Divide, Conquer (recursively), Combine","B":"Only lateral thinking","C":"Only brainstorming","D":"Only the Five Whys"},"answer":"A","topic":"Solution Techniques (Part 2)"},{"id":347,"q":"Top-down design works from:","opts":{"A":"The specific to the general","B":"The general to the specific (main module first, then helper modules)","C":"Only bottom-up","D":"Only natural language"},"answer":"B","topic":"General Problem-Solving Process & Algorithm Development"},{"id":348,"q":"The oval (terminator) symbol represents:","opts":{"A":"A process","B":"Start or Stop","C":"A decision","D":"Input/Output"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":349,"q":"Pseudocode is:","opts":{"A":"Actual compilable code","B":"A structured, human-readable description that mixes natural language with programming-like constructs","C":"Only graphical","D":"A morphological box"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":350,"q":"Decision tables are particularly useful when:","opts":{"A":"There is only sequential logic","B":"Multiple conditions interact and all combinations must be considered","C":"Only loops are needed","D":"No decisions exist"},"answer":"B","topic":"Algorithm Representation Tools (Flowcharts, Pseudocode, Decision Tables)"},{"id":351,"q":"Variables in VB.Net are declared primarily with the keyword:","opts":{"A":"Var","B":"Dim","C":"Let","D":"Const"},"answer":"B","topic":"VB.Net Data Types & Variables"},{"id":352,"q":"The entry point of every VB.Net console program is the:","opts":{"A":"Class constructor","B":"Main procedure (Sub Main)","C":"Module declaration only","D":"Imports statement"},"answer":"B","topic":"VB.Net Introduction"},{"id":353,"q":"Constants are declared with the keyword:","opts":{"A":"Dim","B":"Const","C":"Static","D":"Enum"},"answer":"B","topic":"VB.Net Data Types & Variables"},{"id":354,"q":"An Enum in VB.Net is:","opts":{"A":"A changeable variable","B":"A set of named integer constants","C":"A string type","D":"A flowchart"},"answer":"B","topic":"VB.Net Introduction"},{"id":355,"q":"Which of the following is a correct declaration of an Integer variable?","opts":{"A":"Integer counter = 10","B":"Dim counter As Integer","C":"Var counter As Integer","D":"counter Integer = 10"},"answer":"B","topic":"VB.Net Data Types & Variables"},{"id":356,"q":"Computing, in the broadest sense, is the activity of using computers to:","opts":{"A":"Design websites only","B":"Manage, process, and communicate information","C":"Manufacture hardware","D":"Play games only"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":357,"q":"Which of the following is defined as raw facts, figures, or symbols without meaning?","opts":{"A":"Information","B":"Algorithm","C":"Data","D":"Program"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":358,"q":"Data becomes information when it is:","opts":{"A":"Printed","B":"Processed and organized","C":"Deleted","D":"Copied"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":359,"q":"An algorithm is:","opts":{"A":"A computer","B":"A programming language","C":"A finite sequence of well-defined, unambiguous steps","D":"A database"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":360,"q":"Every time we use a computer, one or more _____ are executed","opts":{"A":"Compilers","B":"Algorithms","C":"Monitors","D":"Routers"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":361,"q":"The essence of computer science is:","opts":{"A":"Owning expensive computers","B":"Programming alone","C":"Problem solving","D":"Networking"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":362,"q":"In computing, the computer is regarded as:","opts":{"A":"The problem solver","B":"A toal","C":"The programmer","D":"The algorithm"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":363,"q":"The beginning stage of a problem is called the:","opts":{"A":"Goal state","B":"Final state","C":"Initial state","D":"Solution state"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":364,"q":"The desired final stage of a problem is known as the:","opts":{"A":"Initial state","B":"Goal state","C":"Constraint","D":"Input state"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":365,"q":"Constraints and available actions that can change a state are known as:","opts":{"A":"Algorithms","B":"Obstacles/Challenges","C":"Programs","D":"Data"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":366,"q":"In the computing example of problem solving, the initial state is:","opts":{"A":"A sorted list","B":"A list of 10,000 unsorted student names","C":"A database","D":"A graph"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":367,"q":"The goal state in the computing example is:","opts":{"A":"An unsorted list","B":"The same list sorted alphabetically","C":"A printed list","D":"A deleted list"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":368,"q":"A problem cannot be solved unless it is:","opts":{"A":"Expensive","B":"Known and clearly articulated","C":"Complex","D":"Automated"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":369,"q":"Which of the following is NOT a method of problem identification?","opts":{"A":"Observation of symptoms","B":"Needs analysis","C":"Opportunities","D":"Guessing"},"answer":"D","topic":"Foundations of Problem Solving in Computing"},{"id":370,"q":"Requirement elicitation is the process of:","opts":{"A":"Designing software","B":"Understanding what the user really needs","C":"Writing programs","D":"Testing hardware"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":371,"q":"A well-formed problem statement should be:","opts":{"A":"Ambiguous","B":"Concise and unambiguous","C":"Very long","D":"Informal"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":372,"q":"Which of the following is NOT part of a good problem statement?","opts":{"A":"Current state","B":"Goal state","C":"Stakeholders","D":"Favourite programming language"},"answer":"D","topic":"Foundations of Problem Solving in Computing"},{"id":373,"q":"Routine problems are also known as:","opts":{"A":"Ill-defined problems","B":"Non-routine problems","C":"Well defined problems","D":"Wicked problems"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":374,"q":"Routine problems usually have:","opts":{"A":"No known solution","B":"A known algorithm","C":"Multiple impossible solutions","D":"No information"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":375,"q":"Non-routine problems generally require:","opts":{"A":"Creativity and judgment","B":"Only memorization","C":"Only arithmetic","D":"No thinking"},"answer":"A","topic":"Foundations of Problem Solving in Computing"},{"id":376,"q":"Which of the following is an example of a routine problem?","opts":{"A":"Designing a user-friendly banking app","B":"Computing the average of a list of numbers","C":"Choosing a software architecture","D":"Designing a new operating system"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":377,"q":"Problem solving in computer science involves:","opts":{"A":"Ignoring data","B":"Logically organizing and analyzing data","C":"Avoiding algorithms","D":"Removing computers"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":378,"q":"Computational thinking is described as:","opts":{"A":"A programming language","B":"A way of approaching problems using computing concepts","C":"A type of hardware","D":"A database system"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":379,"q":"The four-step problem-solving model discussed in the lecture note was proposed by:","opts":{"A":"Alan Turing","B":"Donald Knuth","C":"George Polya","D":"David Hilbert"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":380,"q":"The first step in Polya's problem-solving model is:","opts":{"A":"Carry out the plan","B":"Devise a plan","C":"Understand the problem","D":"Look back"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":381,"q":"The final step in Pdlya's problem-solving model is:","opts":{"A":"Understand the problem","B":"Devise a plan","C":"Carry out the plan","D":"Look back (Evaluate and Reflect)"},"answer":"D","topic":"Foundations of Problem Solving in Computing"},{"id":382,"q":"During the \"Understand the Problem\" stage of Pdlya's model, you should first:","opts":{"A":"Write the program","B":"Read the problem carefully","C":"Test the solution","D":"Optimize the algorithm"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":383,"q":"Which of the following should be identified in Step 1 of Pdlya's model?","opts":{"A":"Budget only","B":"Given data, unknowns, and conditions","C":"Programming language","D":"Hardware specifications"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":384,"q":"Which of the following is recommended when trying to understand a problem?","opts":{"A":"Ignore assumptions","B":"Draw a diagram or restate the problem","C":"Start coding immediately","D":"Skip the problem"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":385,"q":"Which question should you ask while understanding a problem?","opts":{"A":"Is there enough information?","B":"Which programming language is the best?","C":"How much RAM does the computer have?","D":"What is the pracessor speed?"},"answer":"A","topic":"Foundations of Problem Solving in Computing"},{"id":386,"q":"The second step of Pdlya's problem-solving process is:","opts":{"A":"Look Back","B":"Carry Out the Plan","C":"Devise a Plan","D":"Understand the Problem"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":387,"q":"The \"Devise a Plan\" stage is mainly concerned with:","opts":{"A":"Testing the solution","B":"Deciding how to solve the problem","C":"Printing the output","D":"Debugging errors"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":388,"q":"During the planning stage, students are encouraged to:","opts":{"A":"Ignore previous problems","B":"Think about similar problems solved before","C":"Memorize definitions only","D":"Buy new software"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":389,"q":"Which of the following tools is suggested during the planning stage?","opts":{"A":"Antivirus software","B":"Flowchart or pseudocode","C":"Spreadsheet","D":"Database"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":390,"q":"For routine problems, devising a plan often means selecting:","opts":{"A":"A programming language","B":"The correct algorithm","C":"A compiler","D":"An operating system"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":391,"q":"For non-routine problems, the problem may need to be:","opts":{"A":"Ignored","B":"Broken into smaller subproblems","C":"Deleted","D":"Printed"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":392,"q":"The third step in Polya's model is:","opts":{"A":"Carry Out the Plan","B":"Understand the Problem","C":"Look Back","D":"Devise a Plan"},"answer":"A","topic":"Foundations of Problem Solving in Computing"},{"id":393,"q":"During the execution stage, each step should be:","opts":{"A":"Skipped if difficult","B":"Checked for correctness","C":"Hidden from others","D":"Randomly chosen"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":394,"q":"Keeping a clear record of your work makes it easier to:","opts":{"A":"Waste time","B":"Review the solution","C":"Increase program size","D":"Avoid documentation"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":395,"q":"The fourth step in Polya's model is:","opts":{"A":"Execute","B":"Plan","C":"Look Back (Evaluate and Reflect)","D":"Observe"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":396,"q":"During the \"Look Back\" stage, you should determine whether:","opts":{"A":"The solution satisfies all conditions","B":"The computer is expensive","C":"The monitor is working","D":"The keyboard is new"},"answer":"A","topic":"Foundations of Problem Solving in Computing"},{"id":397,"q":"In the example \"Find the Largest of Three Numbers,\" the assumption made is that:","opts":{"A":"The numbers are negative","B":"The numbers are distinct","C":"The numbers are sorted","D":"The numbers are fractions"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":398,"q":"In the example, after comparing 15 and 22, the larger number is:","opts":{"A":"9","B":"15","C":"22","D":"None of the above"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":399,"q":"In the example, the largest of 15, 22, and 9 is:","opts":{"A":"9","B":"15","C":"22","D":"24"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":400,"q":"Another method suggested for finding the largest number is to:","opts":{"A":"Multiply the numbers","B":"Sort the numbers and pick the last one","C":"Add the numbers","D":"Divide the numbers"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":401,"q":"According to the lecture note, sorting first is:","opts":{"A":"More efficient","B":"Less efficient","C":"Impossible","D":"Mandatory"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":402,"q":"Algorithms, flowcharts, pseudocode, and programming languages are described as:","opts":{"A":"Programming errors","B":"Tools for formalizing and automating problem solving","C":"Hardware devices","D":"Network protocols"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":403,"q":"Probler-solving lies at the heart of:","opts":{"A":"Civil Engineering","B":"Computing","C":"Accounting","D":"Marketing"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":404,"q":"Which of the following is an example of data according to the lecture note?","opts":{"A":"Student report","B":"23, 05, 1998","C":"Examination timetable","D":"Registration form"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":405,"q":"Which of the following best describes a goal state?","opts":{"A":"The starting point of a problem","B":"The desired final state to be achieved","C":"The programming language used","D":"The available memory"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":406,"q":"Which of the following is considered a resource or constraint in a problem statement?","opts":{"A":"Time","B":"Budget","C":"Hardware","D":"All of the above"},"answer":"D","topic":"Foundations of Problem Solving in Computing"},{"id":407,"q":"According to the lecture note, creativity in solving non-routine problems happens in the:","opts":{"A":"Computer","B":"Human mind","C":"Compiler","D":"Processor"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":408,"q":"The execution of algorithms is delegated to the:","opts":{"A":"Teacher","B":"Computer","C":"Programmer","D":"User"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":409,"q":"George Polya's four-step process serves as the backbone of:","opts":{"A":"Computer networking","B":"Problem solving in computing","C":"Database management","D":"Operating system design"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":410,"q":"Which of the following best defines a problem in computing?","opts":{"A":"Any difficult examination","B":"A situation with an initial state, goal state, and no obvious path between them","C":"A computer virus","D":"A programming language"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":411,"q":"The path between the initial state and the goal state usually requires:","opts":{"A":"Luck","B":"Deliberate thinking or action","C":"Guesswork only","D":"Hardware replacement"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":412,"q":"Which of the following is NOT one of the three components of a problem?","opts":{"A":"Initial state","B":"Goal state","C":"Obstacles/Challenges","D":"Programming language"},"answer":"D","topic":"Foundations of Problem Solving in Computing"},{"id":413,"q":"Observation of symptoms helps identify a problem when:","opts":{"A":"Everything works perfectly","B":"Something is not working as expected","C":"A new computer is bought","D":"The internet is available"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":414,"q":"Needs analysis is usually initiated when:","opts":{"A":"A stakeholder requests a new capability","B":"The computer is switched off","C":"A keyboard is faulty","D":"The battery is low"},"answer":"A","topic":"Foundations of Problem Solving in Computing"},{"id":415,"q":"Recognizing that a task can be done better, faster, or cheaper refers to:","opts":{"A":"Observation","B":"Opportunities","C":"Programming","D":"Compilation"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":416,"q":"A strong problem statement should contain:","opts":{"A":"Current state only","B":"Goal state only","C":"Current state, goal state, constraints, and stakeholders","D":"Programming language only"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":417,"q":"Which of the following is an example of a weak problem statement?","opts":{"A":"The registration system is bad","B":"The systern should register all students within 15 minutes","C":"The portal supports only 200 concurrent users","D":"The budget is $5,000,000"},"answer":"A","topic":"Foundations of Problem Solving in Computing"},{"id":418,"q":"A strong problem statement should include:","opts":{"A":"Measurable criteria for success","B":"Only assumptions","C":"Personal opinions","D":"Irrelevant details"},"answer":"A","topic":"Foundations of Problem Solving in Computing"},{"id":419,"q":"Which type of problem has all necessary information clearly specified?","opts":{"A":"Non-routine problem","B":"ll-defined problem","C":"Routine problem","D":"Wicked problem"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":420,"q":"Routine problems are generally solved by:","opts":{"A":"Guessing","B":"Heuristics only","C":"Known algorithms","D":"Brainstorming only"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":421,"q":"Non-routine problems often require:","opts":{"A":"Creativity","B":"Judgment","C":"Heuristics","D":"All of the above"},"answer":"D","topic":"Foundations of Problem Solving in Computing"},{"id":422,"q":"Designing a user-friendly interface is an example of:","opts":{"A":"A routine problem","B":"A non-routine problem","C":"A mathematical proof","D":"A database operation"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":423,"q":"Which statement best describes a computer?","opts":{"A":"It creates problems","B":"It executes algorithms","C":"It replaces human creativity","D":"It thinks like humans"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":424,"q":"Computational thinking involves:","opts":{"A":"Organizing and analyzing data logically","B":"Ignoring abstractions","C":"Removing algorithms","D":"Avoiding automation"},"answer":"A","topic":"Foundations of Problem Solving in Computing"},{"id":425,"q":"Representing data and processes through models and simulations is known as:","opts":{"A":"Data deletion","B":"Abstraction","C":"Encryption","D":"Compilation"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":426,"q":"Automating solutions through ordered steps is known as:","opts":{"A":"Algorithmic thinking","B":"Random thinking","C":"Mechanical reasoning","D":"Hardware engineering"},"answer":"A","topic":"Foundations of Problem Solving in Computing"},{"id":427,"q":"Developers may spend weeks or months before writing code mainly to:","opts":{"A":"Buy computers","B":"Understand the problem and design algorithms","C":"Learn a new language","D":"Install software"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":428,"q":"Code written without proper problem analysis is often:","opts":{"A":"Efficient","B":"Buggy and inefficient","C":"Perfect","D":"Easier to maintain"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":429,"q":"George Polya first published his four-step model in the book:","opts":{"A":"The Art of Computer Programming","B":"How to Solve It","C":"Introduction to Algorithms","D":"The C Programming Language"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":430,"q":"George Polya's famous book was published in:","opts":{"A":"1936","B":"1945","C":"1956","D":"1965"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":431,"q":"Which step involves selecting an appropriate solution technique?","opts":{"A":"Understand the Problem","B":"Devise a Plan","C":"Carry Out the Plan","D":"Look Back"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":432,"q":"Which stage may involve breaking a non-routine problem into smaller subproblems?","opts":{"A":"Laok Back","B":"Carry Out the Plan","C":"Devise a Plan","D":"Understand the Problem"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":433,"q":"During execution, every step should logically follow:","opts":{"A":"The final answer","B":"The previous step","C":"The next chapter","D":"The conclusion"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":434,"q":"Evaluating whether there is a simpler solution belongs to:","opts":{"A":"Understand the Problem","B":"Devise a Plan","C":"Look Back","D":"Observation"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":435,"q":"Which of the following is encouraged during the evaluation stage?","opts":{"A":"Ignore mistakes","B":"Learn from the completed problem","C":"Skip testing","D":"Delete the solution"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":436,"q":"In the example of finding the largest of three numbers, the first comparison is between:","opts":{"A":"a and c","B":"b and c","C":"a and b","D":"None of the above"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":437,"q":"In the lecture note, algorithms, flowcharts, and pseudocode mainly help to:","opts":{"A":"Manufacture computers","B":"Formalize and automate problem solving","C":"Replace programmers","D":"Increase memory size"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":438,"q":"According to the lecture note, creativity occurs mainly in the:","opts":{"A":"CPU","B":"Human mind","C":"Hard disk","D":"Compiler"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":439,"q":"Which of the following best summarizes Week 1?","opts":{"A":"Computing focuses only on programming","B":"Effective computing begins with understanding and solving problems systematically","C":"Hardware is more important than problem solving","D":"Programming languages eliminate the need for algorithms"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":440,"q":"Which of the following is the primary goal of problem solving in computing?","opts":{"A":"Buying new computers","B":"Finding a systematic solution to a problem","C":"Increasing storage capacity","D":"Installing software"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":441,"q":"The first activity before writing any computer program should be:","opts":{"A":"Compiling the code","B":"Understanding the problem","C":"Testing the program","D":"Printing the output"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":442,"q":"Which of the following transforms an algorithm into a form a computer can execute?","opts":{"A":"Data","B":"Program","C":"Hardware","D":"Network"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":443,"q":"Information differs from data because information is:","opts":{"A":"Unprocessed facts","B":"Processed and meaningful data","C":"Random symbols","D":"Unorganized figures"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":444,"q":"An algorithm must be:","opts":{"A":"Ambiguous","B":"Infinite","C":"Well-defined and finite","D":"Written only in English"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":445,"q":"Which characteristic is essential for every algorithm?","opts":{"A":"Unlimited number of steps","B":"Clear and unambiguous instructions","C":"High execution cost","D":"Internet connectivity"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":446,"q":"Which of the following is NOT an example of computational thinking?","opts":{"A":"Decomposing a problem","B":"Recognizing patterns","C":"Developing algorithms","D":"Buying a faster computer"},"answer":"D","topic":"Foundations of Problem Solving in Computing"},{"id":447,"q":"Breaking a complex problem into smaller manageable parts is known as:","opts":{"A":"Compilation","B":"Decomposition","C":"Encryption","D":"Optimization"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":448,"q":"Identifying similarities among problems is called:","opts":{"A":"Pattern recognition","B":"Debugging","C":"Documentation","D":"Evaluation"},"answer":"A","topic":"Foundations of Problem Solving in Computing"},{"id":449,"q":"Ignoring unnecessary details while focusing on important information is known as:","opts":{"A":"Testing","B":"Abstraction","C":"Simulation","D":"Programming"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":450,"q":"Creating a sequence of logical steps to solve a problem is:","opts":{"A":"Pattern matching","B":"Algorithm design","C":"Networking","D":"Farmatting"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":451,"q":"Which of the following is an output of problem-solving before programming begins?","opts":{"A":"Source code","B":"Algorithm","C":"Processor","D":"Keyboard"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":452,"q":"Flowcharts are mainly used to:","opts":{"A":"Repair hardware","B":"Represent algorithms graphically","C":"Store data","D":"Browse the internet"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":453,"q":"Pseudocode is primarily used to:","opts":{"A":"Replace programming languages","B":"Describe algorithms in simple language","C":"Compile programs","D":"Design hardware"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":454,"q":"A good solution should satisfy:","opts":{"A":"Only the programmer","B":"The stated problem requirements","C":"Only the examiner","D":"The operating system"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":455,"q":"Which stage confirms that the solution actually works?","opts":{"A":"Understanding","B":"Planning","C":"Evaluation","D":"Observation"},"answer":"C","topic":"Foundations of Problem Solving in Computing"},{"id":456,"q":"If a solution fails during evaluation, the solver should:","opts":{"A":"Ignore the error","B":"Return to previous steps and improve it","C":"Delete the solution","D":"Stop working"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":457,"q":"In computing, successful problem solving usually follows a:","opts":{"A":"Random approach","B":"Logical and systematic process","C":"Trial-and-error only","D":"Hardware-first approach"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":458,"q":"Which of the following contributes most to efficient software development?","opts":{"A":"Clear problem definition","B":"Expensive computers","C":"Large monitors","D":"Fast internet"},"answer":"A","topic":"Foundations of Problem Solving in Computing"},{"id":459,"q":"The purpose of evaluating a completed solution is to:","opts":{"A":"Increase file size","B":"Confirm correctness and identify improvements","C":"Change the problem","D":"Rewrite the question"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":460,"q":"A programmer who skips problem analysis is more likely to produce:","opts":{"A":"Efficient software","B":"Incorrect or inefficient software","C":"Perfect software","D":"Error-free algorithms"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":461,"q":"The relationship between an algorithm and a program is that:","opts":{"A":"They are completely unrelated","B":"A program implements an algorithm","C":"A program creates hardware","D":"An algorithm executes a program"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":462,"q":"Which of the following best describes systematic thinking?","opts":{"A":"Solving problems randomly","B":"Following organized logical steps","C":"Ignoring constraints","D":"Guessing answers"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":463,"q":"Which of the following is most likely to improve problem-solving ability?","opts":{"A":"Practising different kinds of problems","B":"Memorizing answers only","C":"Buying a new laptop","D":"Changing operating systems"},"answer":"A","topic":"Foundations of Problem Solving in Computing"},{"id":464,"q":"Effective problem solving requires:","opts":{"A":"Analysis before implementation","B":"Coding before planning","C":"Testing before understanding","D":"Documentation before analysis"},"answer":"A","topic":"Foundations of Problem Solving in Computing"},{"id":465,"q":"Which of the following is considered the foundation of programming?","opts":{"A":"Hardware maintenance","B":"Problem-solving skills","C":"Computer networking","D":"Database installation"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":466,"q":"Which of the following statements is TRUE according to the lecture note?","opts":{"A":"Every problem has only one solution","B":"Some problems can have multiple valid solutions","C":"Problems do not require planning","D":"Algorithms are optional in computing"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":467,"q":"Which of the following best explains why algorithms are important?","opts":{"A":"They reduce electricity consumption","B":"They provide a clear procedure for solving problems","C":"They increase computer speed automatically. B","D":"They replace programmers"},"answer":"B","topic":"Foundations of Problem Solving in Computing"},{"id":468,"q":"Which of the following should be considered when reviewing a completed solution?","opts":{"A":"Can the method be improved?","B":"Is there another simpler approach?","C":"Does the solution satisfy the original problem?","D":"All of the above"},"answer":"D","topic":"Foundations of Problem Solving in Computing"},{"id":469,"q":"The central message of Chapter 1 is that:","opts":{"A":"Computing is mainly about hardware","B":"Programming should begin only after understanding and planning the solution to a problem","C":"Computers solve every problem automatically","D":"Programming languages are more important than algorithms"},"answer":"B","topic":"Foundations of Problem Solving in Computing"}];
+
+const TOPICS = [...new Set(QUESTION_BANK.map(q => q.topic))];
+
+/* =========================================================
+   UTIL
+========================================================= */
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+function sample(arr, n){
+  return shuffle(arr).slice(0, n);
+}
+function fmtTime(sec){
+  sec = Math.max(0, Math.round(sec));
+  const m = Math.floor(sec/60), s = sec%60;
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+function fmtTimeLong(sec){
+  sec = Math.max(0, Math.round(sec));
+  const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
+  if(h>0) return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+/* =========================================================
+   STATE
+========================================================= */
+let state = {
+  selectedTopics: new Set(TOPICS),
+  questionCount: 20,
+  mode: 'exam',
+  timeLimitMin: 20,
+  session: null, // {questions:[], answers:{}, flags:Set, current, startedAt, mode, timeLimitSec}
+  timerInterval: null,
+  reviewFilter: 'all',
+};
+window.state = state;
+
+/* =========================================================
+   SETUP SCREEN
+========================================================= */
+const COUNT_PRESETS = [10, 20, 30, 50, 100];
+const TIME_PRESETS = [10, 15, 20, 30, 45, 60];
+
+function topicPoolSize(topicsSet){
+  return QUESTION_BANK.filter(q => topicsSet.has(q.topic)).length;
+}
+
+function renderTopicGrid(){
+  const grid = document.getElementById('topicGrid');
+  grid.innerHTML = '';
+  TOPICS.forEach(topic => {
+    const count = QUESTION_BANK.filter(q => q.topic === topic).length;
+    const chip = document.createElement('div');
+    chip.className = 'topic-chip' + (state.selectedTopics.has(topic) ? ' selected' : '');
+    chip.innerHTML = `<span class="diamond"></span><span class="name">${escapeHtml(topic)}</span><span class="count">${count}</span>`;
+    chip.addEventListener('click', () => {
+      if(state.selectedTopics.has(topic)) state.selectedTopics.delete(topic);
+      else state.selectedTopics.add(topic);
+      renderTopicGrid();
+      updateCountUI();
+    });
+    grid.appendChild(chip);
+  });
+}
+
+function renderCountRow(){
+  const row = document.getElementById('countRow');
+  row.innerHTML = '';
+  const max = topicPoolSize(state.selectedTopics);
+  COUNT_PRESETS.filter(p => p <= max || p === COUNT_PRESETS[0]).forEach(p => {
+    const chip = document.createElement('button');
+    chip.className = 'count-chip' + (state.questionCount === p ? ' selected' : '');
+    chip.textContent = p;
+    chip.disabled = p > max;
+    if(p > max) chip.style.opacity = '0.35';
+    chip.addEventListener('click', () => {
+      state.questionCount = Math.min(p, max);
+      document.getElementById('customCount').value = state.questionCount;
+      renderCountRow();
+    });
+    row.appendChild(chip);
+  });
+  const allChip = document.createElement('button');
+  allChip.className = 'count-chip' + (state.questionCount === max ? ' selected' : '');
+  allChip.textContent = 'All (' + max + ')';
+  allChip.addEventListener('click', () => {
+    state.questionCount = max;
+    document.getElementById('customCount').value = state.questionCount;
+    renderCountRow();
+  });
+  row.appendChild(allChip);
+}
+
+function updateCountUI(){
+  const max = topicPoolSize(state.selectedTopics);
+  document.getElementById('poolMax').textContent = max;
+  const customInput = document.getElementById('customCount');
+  customInput.max = max;
+  if(state.questionCount > max) state.questionCount = max;
+  if(parseInt(customInput.value,10) > max) customInput.value = max;
+  renderCountRow();
+}
+
+document.getElementById('customCount').addEventListener('input', (e) => {
+  const max = topicPoolSize(state.selectedTopics);
+  let v = parseInt(e.target.value, 10);
+  if(isNaN(v) || v < 1) v = 1;
+  if(v > max) v = max;
+  state.questionCount = v;
+  renderCountRow();
+});
+
+document.getElementById('selectAllTopics').addEventListener('click', () => {
+  state.selectedTopics = new Set(TOPICS);
+  renderTopicGrid();
+  updateCountUI();
+});
+document.getElementById('selectNoneTopics').addEventListener('click', () => {
+  state.selectedTopics = new Set();
+  renderTopicGrid();
+  updateCountUI();
+});
+
+function renderTimerRow(){
+  const row = document.getElementById('timerRow');
+  row.innerHTML = '';
+  TIME_PRESETS.forEach(p => {
+    const chip = document.createElement('button');
+    chip.className = 'timer-chip' + (state.timeLimitMin === p ? ' selected' : '');
+    chip.textContent = p + ' min';
+    chip.addEventListener('click', () => {
+      state.timeLimitMin = p;
+      renderTimerRow();
+    });
+    row.appendChild(chip);
+  });
+}
+
+document.querySelectorAll('.mode-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    state.mode = card.dataset.mode;
+    const timerWrap = document.getElementById('timerBlockWrap');
+    const timerRow = document.getElementById('timerRow');
+    const instantNote = document.getElementById('instantNote');
+    if(state.mode === 'instant'){
+      timerRow.style.display = 'none';
+      instantNote.style.display = 'flex';
+    } else {
+      timerRow.style.display = 'grid';
+      instantNote.style.display = 'none';
+    }
+  });
+});
+
+document.getElementById('startBtn').addEventListener('click', () => {
+  const max = topicPoolSize(state.selectedTopics);
+  if(state.selectedTopics.size === 0 || max === 0){
+    document.getElementById('startWarn').classList.add('show');
+    return;
+  }
+  document.getElementById('startWarn').classList.remove('show');
+  startSession();
+});
+
+/* =========================================================
+   SESSION / QUIZ ENGINE
+========================================================= */
+function startSession(){
+  const pool = QUESTION_BANK.filter(q => state.selectedTopics.has(q.topic));
+  const chosen = sample(pool, Math.min(state.questionCount, pool.length));
+  const questions = chosen.map(q => {
+    const letters = ['A','B','C','D'];
+    const shuffledLetters = shuffle(letters);
+    const opts = shuffledLetters.map(origLetter => ({
+      text: q.opts[origLetter],
+      isCorrect: origLetter === q.answer
+    }));
+    return {
+      id: q.id,
+      text: q.q,
+      topic: q.topic,
+      opts: opts, // array of 4 {text, isCorrect}, already shuffled
+    };
+  });
+
+  state.session = {
+    questions,
+    answers: {},      // idx -> chosen opt index
+    flags: new Set(),
+    current: 0,
+    startedAt: Date.now(),
+    mode: state.mode,
+    timeLimitSec: state.mode === 'exam' ? state.timeLimitMin * 60 : null,
+    finished: false,
+  };
+
+  showScreen('quiz');
+  renderQuestion();
+  renderNavigator();
+  startTimer();
+}
+
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function tickTimer(){
+  const disp = document.getElementById('timerDisplay');
+  const s = state.session;
+  if(!s || s.finished) return;
+  const elapsed = (Date.now() - s.startedAt) / 1000;
+  if(s.mode === 'exam'){
+    const remaining = s.timeLimitSec - elapsed;
+    if(remaining <= 0){
+      disp.textContent = '0:00';
+      finishSession(true);
+      return;
+    }
+    disp.textContent = fmtTimeLong(remaining);
+    disp.classList.toggle('low', remaining <= 60);
+  } else {
+    disp.textContent = fmtTimeLong(elapsed);
+    disp.classList.remove('low');
+  }
+}
+function startTimer(){
+  clearInterval(state.timerInterval);
+  tickTimer();
+  state.timerInterval = setInterval(tickTimer, 250);
+}
+
+function currentQ(){
+  return state.session.questions[state.session.current];
+}
+
+function renderQuestion(){
+  const s = state.session;
+  const q = currentQ();
+  document.getElementById('qNum').textContent = s.current + 1;
+  document.getElementById('qTotal').textContent = s.questions.length;
+  document.getElementById('qTopicTag').textContent = q.topic;
+  document.getElementById('qText').textContent = q.text;
+
+  const pct = (s.current) / s.questions.length * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPuck').style.left = pct + '%';
+
+  const optList = document.getElementById('optList');
+  optList.innerHTML = '';
+  const answered = s.answers[s.current];
+  const isInstant = s.mode === 'instant';
+  const locked = answered !== undefined && isInstant;
+
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    let cls = '';
+    if(isInstant && answered !== undefined){
+      cls = 'locked';
+      if(opt.isCorrect) cls += ' correct';
+      else if(i === answered) cls += ' incorrect';
+      else cls += ' dim';
+    } else if(!isInstant && answered === i){
+      cls = 'chosen';
+    }
+    btn.className = 'opt ' + cls;
+    btn.innerHTML = `<span class="letter">${String.fromCharCode(65+i)}</span><span>${escapeHtml(opt.text)}</span>`;
+    btn.addEventListener('click', () => selectOption(i));
+    optList.appendChild(btn);
+  });
+
+  const banner = document.getElementById('feedbackBanner');
+  if(isInstant && answered !== undefined){
+    const opt = q.opts[answered];
+    banner.classList.add('show');
+    if(opt.isCorrect){
+      banner.className = 'feedback-banner show correct';
+      banner.textContent = '✓ Correct.';
+    } else {
+      const correctText = q.opts.find(o => o.isCorrect).text;
+      banner.className = 'feedback-banner show incorrect';
+      banner.textContent = '✗ Not quite. Correct answer: ' + correctText;
+    }
+  } else {
+    banner.className = 'feedback-banner';
+    banner.textContent = '';
+  }
+
+  document.getElementById('prevBtn').disabled = s.current === 0;
+  document.getElementById('prevBtn').style.visibility = s.current === 0 ? 'hidden' : 'visible';
+  const isLast = s.current === s.questions.length - 1;
+  document.getElementById('nextBtn').style.display = isLast ? 'none' : 'inline-flex';
+  document.getElementById('submitBtn').style.display = isLast ? 'inline-flex' : 'none';
+
+  document.getElementById('flagBtn').textContent = s.flags.has(s.current) ? '⚑ Flagged' : '⚑ Flag';
+  document.getElementById('flagBtn').style.color = s.flags.has(s.current) ? 'var(--amber-300)' : '';
+  document.getElementById('flagBtn').style.borderColor = s.flags.has(s.current) ? 'var(--amber-400)' : '';
+
+  renderNavigator();
+}
+
+function selectOption(i){
+  const s = state.session;
+  if(s.mode === 'instant' && s.answers[s.current] !== undefined) return; // locked after first pick
+  s.answers[s.current] = i;
+  renderQuestion();
+}
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  const s = state.session;
+  if(s.current < s.questions.length - 1){
+    s.current++;
+    renderQuestion();
+  }
+});
+document.getElementById('prevBtn').addEventListener('click', () => {
+  const s = state.session;
+  if(s.current > 0){
+    s.current--;
+    renderQuestion();
+  }
+});
+document.getElementById('flagBtn').addEventListener('click', () => {
+  const s = state.session;
+  if(s.flags.has(s.current)) s.flags.delete(s.current);
+  else s.flags.add(s.current);
+  renderQuestion();
+});
+
+document.getElementById('submitBtn').addEventListener('click', () => {
+  const s = state.session;
+  const unanswered = s.questions.length - Object.keys(s.answers).length;
+  if(unanswered > 0){
+    openModal(
+      'Submit exam?',
+      `You have ${unanswered} unanswered question${unanswered===1?'':'s'}. Once submitted you can't change your answers.`,
+      () => finishSession(false)
+    );
+  } else {
+    finishSession(false);
+  }
+});
+
+function renderNavigator(){
+  const s = state.session;
+  const grid = document.getElementById('navigatorGrid');
+  document.getElementById('navigatorWrap').style.display = s.mode === 'exam' ? 'block' : 'none';
+  if(s.mode !== 'exam') return;
+  grid.innerHTML = '';
+  s.questions.forEach((q, i) => {
+    const dot = document.createElement('div');
+    let cls = 'nav-dot';
+    if(i === s.current) cls += ' current';
+    else if(s.answers[i] !== undefined) cls += ' answered';
+    if(s.flags.has(i)) cls += ' flagged';
+    dot.className = cls;
+    dot.innerHTML = `<span>${i+1}</span>`;
+    dot.addEventListener('click', () => { s.current = i; renderQuestion(); });
+    grid.appendChild(dot);
+  });
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+let modalConfirmCb = null;
+function openModal(title, body, onConfirm){
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').textContent = body;
+  modalConfirmCb = onConfirm;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+document.getElementById('modalCancel').addEventListener('click', () => {
+  document.getElementById('modalOverlay').classList.remove('show');
+});
+document.getElementById('modalConfirm').addEventListener('click', () => {
+  document.getElementById('modalOverlay').classList.remove('show');
+  if(modalConfirmCb) modalConfirmCb();
+});
+
+/* =========================================================
+   RESULTS
+========================================================= */
+function finishSession(timeExpired){
+  const s = state.session;
+  s.finished = true;
+  s.finishedAt = Date.now();
+  clearInterval(state.timerInterval);
+  renderResults(timeExpired);
+  showScreen('results');
+}
+
+function renderResults(timeExpired){
+  const s = state.session;
+  const total = s.questions.length;
+  let correct = 0, incorrect = 0, skipped = 0;
+  const perTopic = {};
+
+  s.questions.forEach((q, i) => {
+    perTopic[q.topic] = perTopic[q.topic] || {correct:0, total:0};
+    perTopic[q.topic].total++;
+    const ans = s.answers[i];
+    if(ans === undefined){ skipped++; return; }
+    if(q.opts[ans].isCorrect){ correct++; perTopic[q.topic].correct++; }
+    else incorrect++;
+  });
+
+  const pct = Math.round((correct/total)*100);
+  document.getElementById('scoreRing').style.setProperty('--pct', pct);
+  document.getElementById('scoreRingVal').innerHTML = pct + '<small>PERCENT</small>';
+  document.getElementById('scoreHeadline').textContent = `You scored ${correct} / ${total}` + (timeExpired ? ' — time expired' : '');
+  document.getElementById('statCorrect').textContent = correct;
+  document.getElementById('statIncorrect').textContent = incorrect;
+  document.getElementById('statSkipped').textContent = skipped;
+  document.getElementById('statTime').textContent = fmtTimeLong((s.finishedAt - s.startedAt)/1000);
+
+  const badge = document.getElementById('scoreBadge');
+  if(pct >= 80){ badge.textContent = 'Excellent'; badge.className = 'badge excellent'; }
+  else if(pct >= 60){ badge.textContent = 'Good'; badge.className = 'badge good'; }
+  else if(pct >= 40){ badge.textContent = 'Fair'; badge.className = 'badge fair'; }
+  else { badge.textContent = 'Needs review'; badge.className = 'badge needs'; }
+
+  const tbWrap = document.getElementById('topicBreakdownWrap');
+  tbWrap.innerHTML = '';
+  Object.entries(perTopic).sort((a,b) => b[1].total - a[1].total).forEach(([topic, d]) => {
+    const row = document.createElement('div');
+    row.className = 'tb-row';
+    const p = d.total ? (d.correct/d.total*100) : 0;
+    row.innerHTML = `<div class="tb-name">${escapeHtml(topic)}</div>
+      <div class="tb-bar-track"><div class="tb-bar-fill" style="width:${p}%"></div></div>
+      <div class="tb-frac">${d.correct}/${d.total}</div>`;
+    tbWrap.appendChild(row);
+  });
+
+  state.reviewFilter = 'all';
+  document.querySelectorAll('.review-tab').forEach(t => t.classList.toggle('active', t.dataset.filter === 'all'));
+  renderReviewList();
+}
+
+function renderReviewList(){
+  const s = state.session;
+  const list = document.getElementById('reviewList');
+  list.innerHTML = '';
+  s.questions.forEach((q, i) => {
+    const ans = s.answers[i];
+    const isCorrect = ans !== undefined && q.opts[ans].isCorrect;
+    const isSkipped = ans === undefined;
+    const isFlagged = s.flags.has(i);
+
+    let show = true;
+    if(state.reviewFilter === 'incorrect') show = !isCorrect;
+    if(state.reviewFilter === 'correct') show = isCorrect;
+    if(state.reviewFilter === 'flagged') show = isFlagged;
+    if(!show) return;
+
+    const item = document.createElement('div');
+    item.className = 'card review-item';
+    const statusLabel = isSkipped ? 'Skipped' : (isCorrect ? 'Correct' : 'Incorrect');
+    const statusCls = isSkipped ? 'skipped' : (isCorrect ? 'correct' : 'incorrect');
+
+    let optsHtml = '';
+    q.opts.forEach((opt, oi) => {
+      let cls = '';
+      if(opt.isCorrect) cls = 'correct-ans';
+      else if(oi === ans) cls = 'your-wrong';
+      if(cls){
+        optsHtml += `<div class="review-opt ${cls}"><span class="rletter">${String.fromCharCode(65+oi)}</span><span>${escapeHtml(opt.text)}${oi===ans && !opt.isCorrect ? ' (your answer)' : (opt.isCorrect ? ' (correct)' : '')}</span></div>`;
+      }
+    });
+
+    item.innerHTML = `
+      <div class="rh">
+        <div>
+          <div class="rq">${i+1}. ${escapeHtml(q.text)}</div>
+          <div class="rtag">${escapeHtml(q.topic)}${isFlagged ? ' · flagged' : ''}</div>
+        </div>
+        <div class="review-status ${statusCls}">${statusLabel}</div>
+      </div>
+      <div class="review-opts">${optsHtml}</div>
+    `;
+    list.appendChild(item);
+  });
+  if(list.innerHTML === ''){
+    list.innerHTML = '<p style="font-family:var(--mono);font-size:12.5px;">Nothing matches this filter.</p>';
+  }
+}
+
+document.querySelectorAll('.review-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.review-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    state.reviewFilter = tab.dataset.filter;
+    renderReviewList();
+  });
+});
+
+document.getElementById('restartBtn').addEventListener('click', () => {
+  showScreen('setup');
+  updateCountUI();
+});
+document.getElementById('reviewTopBtn').addEventListener('click', () => {
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+
+/* =========================================================
+   INIT
+========================================================= */
+document.getElementById('statTotal').textContent = QUESTION_BANK.length;
+document.getElementById('poolMax').textContent = QUESTION_BANK.length;
+renderTopicGrid();
+renderCountRow();
+renderTimerRow();
+updateCountUI();
+</script>
+</body>
+</html>
